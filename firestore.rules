@@ -1,0 +1,75 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ───────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+
+    function isAlumni() {
+      return isAuthenticated() && getUserRole() == 'alumni';
+    }
+
+    // ─── Users ──────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ─── Jobs ───────────────────────────────────────────────
+    match /jobs/{jobId} {
+      allow read: if isAuthenticated();
+      allow create: if isAlumni() || isAdmin();
+      allow update, delete: if isAuthenticated() &&
+        (resource.data.postedBy == request.auth.uid || isAdmin());
+    }
+
+    // ─── Mentorships ────────────────────────────────────────
+    match /mentorships/{mentorshipId} {
+      allow read: if isAuthenticated() &&
+        (resource.data.mentorId == request.auth.uid ||
+         resource.data.menteeId == request.auth.uid ||
+         isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        (resource.data.mentorId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ─── Chats ──────────────────────────────────────────────
+    match /chats/{chatId} {
+      allow read, write: if isAuthenticated() &&
+        request.auth.uid in resource.data.participants;
+
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() &&
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow create: if isAuthenticated() &&
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow update, delete: if isAuthenticated() &&
+          resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    // ─── Notifications ──────────────────────────────────────
+    match /notifications/{userId}/items/{notifId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+  }
+}
