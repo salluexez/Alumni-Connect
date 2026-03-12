@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../domain/entities/admin_stats_entity.dart';
+import '../../../auth/data/models/user_model.dart';
 
 // Admin data typically requires aggregation, either via Cloud Functions
 // writing to a 'metadata/stats' doc or doing count queries.
@@ -51,6 +52,24 @@ class AdminRemoteDataSource {
       await _firestore.collection('users').doc(uid).update({
         'isSuspended': isSuspended,
       });
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  Future<List<UserModel>> searchUsers(String query) async {
+    try {
+      Query usersQuery = _firestore.collection('users').orderBy('name');
+      
+      if (query.isNotEmpty) {
+        // Simple prefix search
+        usersQuery = usersQuery
+            .where('name', isGreaterThanOrEqualTo: query)
+            .where('name', isLessThanOrEqualTo: '$query\uf8ff');
+      }
+
+      final snapshot = await usersQuery.limit(50).get();
+      return snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
     }
