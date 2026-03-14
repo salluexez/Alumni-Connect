@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../auth/data/models/user_model.dart';
+import '../../../dashboard/data/models/activity_model.dart';
 
 class UserRemoteDataSource {
   final FirebaseFirestore _firestore;
@@ -25,6 +26,7 @@ class UserRemoteDataSource {
     String? filterCompany,
     int? filterBatchYear,
     String? filterField,
+    String? excludeUserId,
     DocumentSnapshot? lastDocument,
     int limit = 20,
   }) async {
@@ -49,6 +51,11 @@ class UserRemoteDataSource {
       var users = snapshot.docs
           .map((doc) => UserModel.fromFirestore(doc))
           .toList();
+
+      // Filter out self if requested
+      if (excludeUserId != null) {
+        users.removeWhere((u) => u.uid == excludeUserId);
+      }
 
       // Client-side search filter on name
       if (searchQuery != null && searchQuery.isNotEmpty) {
@@ -96,6 +103,19 @@ class UserRemoteDataSource {
     } catch (_) {
       return {'connections': 0, 'mentors': 0, 'jobs': 0};
     }
+  }
+
+  /// Get real-time activity stream for a user
+  Stream<List<ActivityModel>> getUserActivities(String uid) {
+    return _firestore
+        .collection('recent_activity')
+        .where('userId', isEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .limit(10)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ActivityModel.fromFirestore(doc))
+            .toList());
   }
 
   /// Update user profile
