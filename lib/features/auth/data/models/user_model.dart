@@ -16,6 +16,7 @@ class UserModel extends UserEntity {
     super.isAvailableForMentoring,
     required super.createdAt,
     super.lastSeen,
+    super.isSuspended = false,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -34,6 +35,7 @@ class UserModel extends UserEntity {
       isAvailableForMentoring: data['isAvailableForMentoring'] ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastSeen: (data['lastSeen'] as Timestamp?)?.toDate(),
+      isSuspended: data['isSuspended'] ?? false,
     );
   }
 
@@ -52,6 +54,7 @@ class UserModel extends UserEntity {
       isAvailableForMentoring: data['isAvailableForMentoring'] ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastSeen: (data['lastSeen'] as Timestamp?)?.toDate(),
+      isSuspended: data['isSuspended'] ?? false,
     );
   }
 
@@ -70,6 +73,7 @@ class UserModel extends UserEntity {
       'isAvailableForMentoring': isAvailableForMentoring,
       'createdAt': Timestamp.fromDate(createdAt),
       'lastSeen': lastSeen != null ? Timestamp.fromDate(lastSeen!) : null,
+      'isSuspended': isSuspended,
     };
   }
 
