@@ -16,6 +16,7 @@ class UserEntity extends Equatable {
   final bool isAvailableForMentoring;
   final DateTime createdAt;
   final DateTime? lastSeen;
+  final bool isSuspended;
 
   const UserEntity({
     required this.uid,
@@ -31,6 +32,7 @@ class UserEntity extends Equatable {
     this.isAvailableForMentoring = false,
     required this.createdAt,
     this.lastSeen,
+    this.isSuspended = false,
   });
 
   bool get isAdmin => role == UserRole.admin;
@@ -46,6 +48,6 @@ class UserEntity extends Equatable {
   @override
   List<Object?> get props => [
         uid, email, name, photoUrl, role, batchYear, bio,
-        company, position, skills, isAvailableForMentoring, createdAt, lastSeen,
+        company, position, skills, isAvailableForMentoring, createdAt, lastSeen, isSuspended,
       ];
 }
