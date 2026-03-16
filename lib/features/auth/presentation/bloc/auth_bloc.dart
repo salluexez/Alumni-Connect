@@ -17,12 +17,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required GoogleSignInUseCase googleSignInUseCase,
     required SignOutUseCase signOutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
-  })  : _loginUseCase = loginUseCase,
-        _signUpUseCase = signUpUseCase,
-        _googleSignInUseCase = googleSignInUseCase,
-        _signOutUseCase = signOutUseCase,
-        _getCurrentUserUseCase = getCurrentUserUseCase,
-        super(const AuthInitial()) {
+  }) : _loginUseCase = loginUseCase,
+       _signUpUseCase = signUpUseCase,
+       _googleSignInUseCase = googleSignInUseCase,
+       _signOutUseCase = signOutUseCase,
+       _getCurrentUserUseCase = getCurrentUserUseCase,
+       super(const AuthInitial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthSignUpRequested>(_onSignUpRequested);
@@ -58,10 +58,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
       );
       emit(AuthAuthenticated(user));
-    } on AuthFailure catch (e) {
+    } on Failure catch (e) {
       emit(AuthError(e.message));
-    } catch (e) {
-      emit(AuthError(e.toString()));
     }
   }
 
@@ -78,10 +76,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         role: event.role,
       );
       emit(AuthAuthenticated(user));
-    } on AuthFailure catch (e) {
+    } on Failure catch (e) {
       emit(AuthError(e.message));
-    } catch (e) {
-      emit(AuthError(e.toString()));
     }
   }
 
@@ -93,10 +89,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user = await _googleSignInUseCase();
       emit(AuthAuthenticated(user));
-    } on AuthFailure catch (e) {
+    } on Failure catch (e) {
       emit(AuthError(e.message));
-    } catch (e) {
-      emit(AuthError(e.toString()));
     }
   }
 
