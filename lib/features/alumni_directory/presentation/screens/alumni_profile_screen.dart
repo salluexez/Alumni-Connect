@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -8,8 +8,18 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/profile_avatar.dart';
 import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../../injection/injection.dart';
+import '../cubit/connection_cubit.dart';
 import '../cubit/alumni_cubit.dart';
 import '../cubit/alumni_state.dart';
+import '../../data/models/connection_request_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../../navigation/route_names.dart';
+import '../../../chat/presentation/cubit/chat_cubit.dart';
+import '../../../chat/presentation/cubit/chat_state.dart';
 
 class AlumniProfileScreen extends StatefulWidget {
   final String uid;
@@ -48,7 +58,31 @@ class _AlumniProfileScreenState extends State<AlumniProfileScreen> {
           final user = (state is ProfileLoaded)
               ? state.user
               : (state as ProfileUpdated).user;
-          return _ProfileBody(user: user, isOwnProfile: false);
+          final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+          
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => getIt<ConnectionCubit>()
+                  ..checkConnectionStatus(currentUserId ?? '', user.uid),
+              ),
+              BlocProvider(
+                create: (context) => getIt<ChatCubit>(),
+              ),
+            ],
+            child: BlocListener<ChatCubit, ChatState>(
+              listener: (context, chatState) {
+                if (chatState is ChatRoomCreated) {
+                  context.push('${RouteNames.chat}/${chatState.roomId}');
+                } else if (chatState is ChatError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(chatState.message)),
+                  );
+                }
+              },
+              child: _ProfileBody(user: user, isOwnProfile: false),
+            ),
+          );
         },
       ),
     );
@@ -121,11 +155,23 @@ class _ProfileBody extends StatelessWidget {
             onPressed: () => context.pop(),
           ),
           actions: [
-            if (isOwnProfile)
+            if (isOwnProfile) ...[
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
-                onPressed: () => _showEditDialog(context),
+                tooltip: 'Edit Profile',
+                onPressed: () =>
+                    context.push(RouteNames.editProfile, extra: user).then((_) {
+                  if (context.mounted) {
+                    context.read<ProfileCubit>().loadProfile();
+                  }
+                }),
               ),
+              IconButton(
+                icon: const Icon(Icons.logout_rounded, color: AppColors.error),
+                tooltip: 'Logout',
+                onPressed: () => _showLogoutDialog(context),
+              ),
+            ],
           ],
           flexibleSpace: FlexibleSpaceBar(
             background: Stack(
@@ -177,8 +223,9 @@ class _ProfileBody extends StatelessWidget {
                               [user.position, user.company]
                                   .where((e) => e != null && e.isNotEmpty)
                                   .join(' @ '),
-                              style: AppTextStyles.bodyMedium
-                                  .copyWith(color: AppColors.textSecondary),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                         ],
                       ),
@@ -211,28 +258,89 @@ class _ProfileBody extends StatelessWidget {
 
                 // ── Action Buttons ───────────────────────
                 if (!isOwnProfile)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppButton(
-                          label: 'Message',
-                          onPressed: () {},
-                          variant: AppButtonVariant.primary,
-                          icon: const Icon(Icons.chat_bubble_outline,
-                              size: 18, color: Colors.white),
-                          height: AppSizes.buttonHeightSm,
-                        ),
-                      ),
-                      const SizedBox(width: AppSizes.sm),
-                      Expanded(
-                        child: AppButton(
-                          label: 'Request Mentorship',
-                          onPressed: () {},
-                          variant: AppButtonVariant.secondary,
-                          height: AppSizes.buttonHeightSm,
-                        ),
-                      ),
-                    ],
+                  BlocBuilder<ConnectionCubit, ConnectionState>(
+                    builder: (context, connState) {
+                      final status = (connState is ConnectionStatusLoaded) 
+                          ? connState.status 
+                          : null;
+                      
+                      String label = 'Connect';
+                      IconData icon = Icons.person_add_outlined;
+                      AppButtonVariant variant = AppButtonVariant.secondary;
+                      bool isLoading = connState is ConnectionLoading;
+                      bool isEnabled = true;
+
+                        if (status == ConnectionStatus.pending) {
+                          label = 'Requested';
+                          icon = Icons.access_time_rounded;
+                          variant = AppButtonVariant.secondary;
+                          isEnabled = false;
+                        } else if (status == ConnectionStatus.accepted) {
+                          label = 'Connected';
+                          icon = Icons.check_circle_outline;
+                          variant = AppButtonVariant.secondary;
+                          isEnabled = false;
+                        }
+
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: AppButton(
+                              label: 'Message',
+                              onPressed: () {
+                                context.read<ChatCubit>().startChat(
+                                      user.uid,
+                                      name: user.name,
+                                      photoUrl: user.photoUrl,
+                                    );
+                              },
+                              variant: AppButtonVariant.primary,
+                              icon: const Icon(
+                                Icons.chat_bubble_outline,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                              height: AppSizes.buttonHeightSm,
+                            ),
+                          ),
+                          const SizedBox(width: AppSizes.sm),
+                          Expanded(
+                            child: AppButton(
+                              label: label,
+                              isLoading: isLoading,
+                              onPressed: isEnabled ? () {
+                                final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                                final currentUser = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+                                
+                                if (currentUserId != null) {
+                                  context.read<ConnectionCubit>().sendRequest(
+                                    ConnectionRequestModel(
+                                      id: '', // Will be generated by Firestore
+                                      senderId: currentUserId,
+                                      senderName: currentUser.name,
+                                      senderPhotoUrl: currentUser.photoUrl,
+                                      receiverId: user.uid,
+                                      receiverName: user.name,
+                                      status: ConnectionStatus.pending,
+                                      createdAt: DateTime.now(),
+                                    ),
+                                  );
+                                }
+                              } : null,
+                              variant: variant,
+                              icon: Icon(
+                                icon,
+                                size: 18,
+                                color: variant == AppButtonVariant.secondary 
+                                    ? Colors.white 
+                                    : AppColors.primary,
+                              ),
+                              height: AppSizes.buttonHeightSm,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
 
                 const SizedBox(height: AppSizes.xxl),
@@ -243,7 +351,10 @@ class _ProfileBody extends StatelessWidget {
                 if (user.bio != null && user.bio!.isNotEmpty) ...[
                   Text('About', style: AppTextStyles.h3),
                   const SizedBox(height: AppSizes.sm),
-                  Text(user.bio!, style: AppTextStyles.bodyMedium.copyWith(height: 1.6)),
+                  Text(
+                    user.bio!,
+                    style: AppTextStyles.bodyMedium.copyWith(height: 1.6),
+                  ),
                   const SizedBox(height: AppSizes.lg),
                 ],
 
@@ -255,13 +366,17 @@ class _ProfileBody extends StatelessWidget {
                     spacing: AppSizes.sm,
                     runSpacing: AppSizes.xs,
                     children: user.skills
-                        .map((s) => Chip(
-                              label: Text(s),
-                              backgroundColor: AppColors.surfaceVariant,
-                              labelStyle: AppTextStyles.labelMedium,
-                              side: const BorderSide(
-                                  color: AppColors.border, width: 0.5),
-                            ))
+                        .map(
+                          (s) => Chip(
+                            label: Text(s),
+                            backgroundColor: AppColors.surfaceVariant,
+                            labelStyle: AppTextStyles.labelMedium,
+                            side: const BorderSide(
+                              color: AppColors.border,
+                              width: 0.5,
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                   const SizedBox(height: AppSizes.lg),
@@ -281,17 +396,29 @@ class _ProfileBody extends StatelessWidget {
     );
   }
 
-  void _showEditDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Edit Profile'),
-        content: const Text('Profile editing coming soon!'),
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text('Logout', style: AppTextStyles.h3),
+        content: const Text('Are you sure you want to log out?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          )
+            onPressed: () => context.pop(),
+            child: Text('Cancel',
+                style: AppTextStyles.bodyMedium
+                    .copyWith(color: AppColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              context.pop();
+              context.read<AuthBloc>().add(const AuthSignOutRequested());
+            },
+            child: Text('Logout',
+                style: AppTextStyles.bodyMedium
+                    .copyWith(color: AppColors.error, fontWeight: FontWeight.bold)),
+          ),
         ],
       ),
     );
@@ -317,9 +444,13 @@ class _RolePill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSizes.radiusFull),
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
-      child: Text(label,
-          style: AppTextStyles.labelSmall.copyWith(
-              color: color, fontWeight: FontWeight.w700)),
+      child: Text(
+        label,
+        style: AppTextStyles.labelSmall.copyWith(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
   }
 }
@@ -328,7 +459,11 @@ class _InfoChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _InfoChip({required this.icon, required this.label, this.color = AppColors.textHint});
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    this.color = AppColors.textHint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -344,8 +479,7 @@ class _InfoChip extends StatelessWidget {
         children: [
           Icon(icon, size: 12, color: color),
           const SizedBox(width: 4),
-          Text(label,
-              style: AppTextStyles.caption.copyWith(color: color)),
+          Text(label, style: AppTextStyles.caption.copyWith(color: color)),
         ],
       ),
     );
