@@ -9,6 +9,7 @@ import '../../../auth/domain/entities/user_entity.dart';
 import '../../../../navigation/route_names.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
+import '../../domain/entities/activity_entity.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -49,7 +50,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           }
           if (state is DashboardLoaded) {
-            return _DashboardBody(user: state.user, stats: state.stats);
+            return _DashboardBody(
+              user: state.user, 
+              stats: state.stats,
+              activities: state.activities,
+            );
           }
           return const SizedBox.shrink();
         },
@@ -62,7 +67,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 class _DashboardBody extends StatelessWidget {
   final UserEntity user;
   final Map<String, int> stats;
-  const _DashboardBody({required this.user, required this.stats});
+  final List<ActivityEntity> activities;
+  
+  const _DashboardBody({
+    required this.user, 
+    required this.stats,
+    required this.activities,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +235,22 @@ class _DashboardBody extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSizes.sm),
-                ..._buildActivityItems(),
+                if (activities.isEmpty)
+                  _ActivityItem(
+                    icon: Icons.info_outline,
+                    color: AppColors.textHint,
+                    title: 'No recent activity',
+                    subtitle: 'Your recent actions will appear here.',
+                    time: '',
+                  )
+                else
+                  ...activities.map<Widget>((a) => _ActivityItem(
+                    icon: _getActivityIcon(a.type),
+                    color: _getActivityColor(a.type),
+                    title: a.title,
+                    subtitle: a.subtitle,
+                    time: _formatTime(a.createdAt),
+                  )),
 
                 const SizedBox(height: AppSizes.xxl),
               ],
@@ -235,22 +261,32 @@ class _DashboardBody extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildActivityItems() => [
-        _ActivityItem(
-          icon: Icons.person_add_outlined,
-          color: AppColors.primary,
-          title: 'Profile created',
-          subtitle: 'Welcome to Alumni Connect! 🎉',
-          time: 'Just now',
-        ),
-        _ActivityItem(
-          icon: Icons.star_outline_rounded,
-          color: AppColors.warning,
-          title: 'Complete your profile',
-          subtitle: 'Add bio, skills, and photo',
-          time: '',
-        ),
-      ];
+  IconData _getActivityIcon(String type) {
+    return switch (type) {
+      'connection' => Icons.person_add_outlined,
+      'mentorship' => Icons.school_outlined,
+      'job' => Icons.work_outline,
+      _ => Icons.notifications_none_outlined,
+    };
+  }
+
+  Color _getActivityColor(String type) {
+    return switch (type) {
+      'connection' => AppColors.primary,
+      'mentorship' => AppColors.success,
+      'job' => AppColors.warning,
+      _ => AppColors.textHint,
+    };
+  }
+
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+    if (difference.inMinutes < 1) return 'Just now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes}m';
+    if (difference.inHours < 24) return '${difference.inHours}h';
+    return '${difference.inDays}d';
+  }
 }
 
 // ── Role Badge ────────────────────────────────────────────
