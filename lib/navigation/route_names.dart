@@ -22,4 +22,5 @@ class RouteNames {
 
   // ── Admin ───────────────────────────────────────────────
   static const String adminDashboard = '/admin';
+  static const String voiceCall = '/call';
 }

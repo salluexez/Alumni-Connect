@@ -4,12 +4,24 @@ import 'package:go_router/go_router.dart';
 import '../features/alumni_directory/presentation/cubit/alumni_cubit.dart';
 import '../features/alumni_directory/presentation/screens/alumni_directory_screen.dart';
 import '../features/alumni_directory/presentation/screens/alumni_profile_screen.dart';
-import '../features/auth/presentation/bloc/auth_bloc.dart';
-import '../features/auth/presentation/bloc/auth_event.dart';
+import '../features/alumni_directory/presentation/screens/edit_profile_screen.dart';
+import '../features/auth/domain/entities/user_entity.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
 import '../features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import '../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../features/jobs/presentation/cubit/jobs_cubit.dart';
+import '../features/jobs/presentation/screens/jobs_screen.dart';
+import '../features/mentorship/presentation/cubit/mentorship_cubit.dart';
+import '../features/mentorship/presentation/screens/mentorship_screen.dart';
+import '../features/chat/presentation/cubit/chat_cubit.dart';
+import '../features/chat/presentation/screens/inbox_screen.dart';
+import '../features/chat/presentation/screens/chat_screen.dart';
+import '../features/notifications/presentation/cubit/notification_cubit.dart';
+import '../features/notifications/presentation/screens/notifications_screen.dart';
+import '../features/admin/presentation/cubit/admin_cubit.dart';
+import '../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../features/calls/presentation/screens/call_screen.dart';
 import '../injection/injection.dart';
 import 'route_names.dart';
 
@@ -22,18 +34,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouteNames.login,
       name: 'login',
-      builder: (context, state) => BlocProvider(
-        create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
-        child: const LoginScreen(),
-      ),
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: RouteNames.signup,
       name: 'signup',
-      builder: (context, state) => BlocProvider.value(
-        value: getIt<AuthBloc>(),
-        child: const SignupScreen(),
-      ),
+      builder: (context, state) => const SignupScreen(),
     ),
 
     // ── Main Shell ──────────────────────────────────────
@@ -59,14 +65,18 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: RouteNames.jobs,
           name: 'jobs',
-          builder: (context, state) =>
-              const _PlaceholderScreen(title: 'Jobs & Referrals', icon: Icons.work_rounded),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<JobsCubit>(),
+            child: const JobsScreen(),
+          ),
         ),
         GoRoute(
           path: RouteNames.inbox,
           name: 'inbox',
-          builder: (context, state) =>
-              const _PlaceholderScreen(title: 'Messages', icon: Icons.chat_bubble_rounded),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<ChatCubit>(),
+            child: const InboxScreen(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profile,
@@ -94,55 +104,57 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '${RouteNames.chat}/:chatId',
       name: 'chat',
-      builder: (context, state) =>
-          const _PlaceholderScreen(title: 'Chat', icon: Icons.chat_rounded),
+      builder: (context, state) {
+        final roomId = state.pathParameters['chatId']!;
+        return BlocProvider(
+          create: (_) => getIt<ChatCubit>(),
+          child: ChatScreen(roomId: roomId),
+        );
+      },
     ),
     GoRoute(
       path: RouteNames.mentorship,
       name: 'mentorship',
-      builder: (context, state) =>
-          const _PlaceholderScreen(title: 'Mentorship Hub', icon: Icons.school_rounded),
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<MentorshipCubit>(),
+        child: const MentorshipScreen(),
+      ),
     ),
     GoRoute(
       path: RouteNames.notifications,
       name: 'notifications',
-      builder: (context, state) =>
-          const _PlaceholderScreen(title: 'Notifications', icon: Icons.notifications_rounded),
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<NotificationCubit>(),
+        child: const NotificationsScreen(),
+      ),
     ),
     GoRoute(
       path: RouteNames.adminDashboard,
       name: 'admin_dashboard',
-      builder: (context, state) =>
-          const _PlaceholderScreen(title: 'Admin Dashboard', icon: Icons.admin_panel_settings_rounded),
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<AdminCubit>(),
+        child: const AdminDashboardScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteNames.editProfile,
+      name: 'edit_profile',
+      builder: (context, state) {
+        final user = state.extra as UserEntity;
+        return BlocProvider.value(
+          value: getIt<ProfileCubit>(),
+          child: EditProfileScreen(user: user),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteNames.voiceCall,
+      name: 'voice_call',
+      builder: (context, state) => const CallScreen(),
     ),
   ],
 );
 
-// ── Placeholder Screen ───────────────────────────────────
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  const _PlaceholderScreen({required this.title, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 64, color: const Color(0xFF2463EB)),
-            const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            Text('Coming soon!', style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // ── Main Shell with Material 3 Bottom Nav ────────────────
 class _MainShell extends StatelessWidget {
