@@ -24,7 +24,7 @@ class AppStrings {
   // ── Nav ─────────────────────────────────────────────────
   static const String home = 'Home';
   static const String directory = 'Directory';
-  static const String jobs = 'Jobs';
+  static const String posts = 'Posts';
   static const String chat = 'Chat';
   static const String profile = 'Profile';
 
@@ -61,9 +61,9 @@ class AppStrings {
   static const String activeMentorships = 'Active Mentorships';
   static const String pendingRequests = 'Pending Requests';
 
-  // ── Jobs ────────────────────────────────────────────────
-  static const String jobsBoard = 'Jobs & Referrals';
-  static const String postJob = 'Post a Job';
+  // ── Posts & Referrals ──────────────────────────────────
+  static const String postsBoard = 'Posts & Referrals';
+  static const String postNew = 'Create a Post';
   static const String apply = 'Apply';
   static const String requestReferral = 'Request Referral';
   static const String fullTime = 'Full-time';
