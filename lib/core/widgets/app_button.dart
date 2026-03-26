@@ -34,8 +34,8 @@ class AppButton extends StatelessWidget {
         AppButtonVariant.primary => ElevatedButton(
             onPressed: isLoading ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              disabledBackgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),
@@ -45,21 +45,21 @@ class AppButton extends StatelessWidget {
         AppButtonVariant.secondary => OutlinedButton(
             onPressed: isLoading ? null : onPressed,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.primary),
+              side: BorderSide(color: Theme.of(context).colorScheme.primary),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),
             ),
-            child: _buildChild(color: AppColors.primary),
+            child: _buildChild(color: Theme.of(context).colorScheme.primary),
           ),
         AppButtonVariant.ghost => TextButton(
             onPressed: isLoading ? null : onPressed,
-            child: _buildChild(color: AppColors.primary),
+            child: _buildChild(color: Theme.of(context).colorScheme.primary),
           ),
         AppButtonVariant.danger => ElevatedButton(
             onPressed: isLoading ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),
