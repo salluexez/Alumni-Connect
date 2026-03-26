@@ -17,7 +17,8 @@ import '../cubit/alumni_cubit.dart';
 import '../cubit/alumni_state.dart';
 import '../../data/models/connection_request_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../../../navigation/route_names.dart';
+import '../../../../core/widgets/theme_selector.dart';
+import '../../../../navigation/route_names.dart';
 import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../chat/presentation/cubit/chat_state.dart';
 
@@ -42,8 +43,8 @@ class _AlumniProfileScreenState extends State<AlumniProfileScreen> {
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state is ProfileLoading || state is ProfileInitial) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
           if (state is ProfileError) {
@@ -110,8 +111,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state is ProfileLoading || state is ProfileInitial) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
           if (state is ProfileError) {
@@ -149,7 +150,7 @@ class _ProfileBody extends StatelessWidget {
         SliverAppBar(
           expandedHeight: 200,
           pinned: true,
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: () => context.pop(),
@@ -157,8 +158,8 @@ class _ProfileBody extends StatelessWidget {
           actions: [
             if (isOwnProfile) ...[
               IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                tooltip: 'Edit Profile',
+                icon: const Icon(Icons.person_outline),
+                tooltip: 'Profile Settings',
                 onPressed: () =>
                     context.push(RouteNames.editProfile, extra: user).then((_) {
                   if (context.mounted) {
@@ -179,9 +180,12 @@ class _ProfileBody extends StatelessWidget {
               children: [
                 // Cover gradient
                 Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFF1D4ED8), Color(0xFF0F172A)],
+                      colors: [
+                        Theme.of(context).colorScheme.primary,
+                        Theme.of(context).scaffoldBackgroundColor,
+                      ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
@@ -224,7 +228,7 @@ class _ProfileBody extends StatelessWidget {
                                   .where((e) => e != null && e.isNotEmpty)
                                   .join(' @ '),
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).hintColor,
                               ),
                             ),
                         ],
@@ -332,8 +336,8 @@ class _ProfileBody extends StatelessWidget {
                                 icon,
                                 size: 18,
                                 color: variant == AppButtonVariant.secondary 
-                                    ? Colors.white 
-                                    : AppColors.primary,
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : Theme.of(context).colorScheme.primary,
                               ),
                               height: AppSizes.buttonHeightSm,
                             ),
@@ -344,7 +348,7 @@ class _ProfileBody extends StatelessWidget {
                   ),
 
                 const SizedBox(height: AppSizes.xxl),
-                const Divider(color: AppColors.divider),
+                Divider(color: Theme.of(context).dividerColor),
                 const SizedBox(height: AppSizes.lg),
 
                 // ── Bio ─────────────────────────────────
@@ -369,10 +373,10 @@ class _ProfileBody extends StatelessWidget {
                         .map(
                           (s) => Chip(
                             label: Text(s),
-                            backgroundColor: AppColors.surfaceVariant,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                             labelStyle: AppTextStyles.labelMedium,
-                            side: const BorderSide(
-                              color: AppColors.border,
+                            side: BorderSide(
+                              color: Theme.of(context).dividerColor,
                               width: 0.5,
                             ),
                           ),
@@ -386,6 +390,15 @@ class _ProfileBody extends StatelessWidget {
                 Text('Contact', style: AppTextStyles.h3),
                 const SizedBox(height: AppSizes.sm),
                 _ContactRow(icon: Icons.email_outlined, label: user.email),
+                
+                if (isOwnProfile) ...[
+                  const SizedBox(height: AppSizes.xxl),
+                  Divider(color: Theme.of(context).dividerColor),
+                  const SizedBox(height: AppSizes.lg),
+                  Text('App Theme', style: AppTextStyles.h3),
+                  const SizedBox(height: AppSizes.md),
+                  const ThemeSelector(),
+                ],
 
                 const SizedBox(height: AppSizes.xxxl),
               ],
@@ -400,7 +413,7 @@ class _ProfileBody extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text('Logout', style: AppTextStyles.h3),
         content: const Text('Are you sure you want to log out?'),
         actions: [
@@ -408,7 +421,7 @@ class _ProfileBody extends StatelessWidget {
             onPressed: () => context.pop(),
             child: Text('Cancel',
                 style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textSecondary)),
+                    .copyWith(color: Theme.of(context).hintColor)),
           ),
           TextButton(
             onPressed: () {
@@ -462,7 +475,7 @@ class _InfoChip extends StatelessWidget {
   const _InfoChip({
     required this.icon,
     required this.label,
-    this.color = AppColors.textHint,
+    this.color = Colors.grey,
   });
 
   @override
@@ -497,7 +510,7 @@ class _ContactRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSizes.xs),
       child: Row(
         children: [
-          Icon(icon, size: AppSizes.iconMd, color: AppColors.textHint),
+          Icon(icon, size: AppSizes.iconMd, color: Theme.of(context).hintColor),
           const SizedBox(width: AppSizes.sm),
           Text(label, style: AppTextStyles.bodyMedium),
         ],

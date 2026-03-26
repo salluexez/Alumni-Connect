@@ -90,7 +90,7 @@ class UserRemoteDataSource {
             .count()
             .get(),
         _firestore
-            .collection('jobs')
+            .collection('posts')
             .where('isActive', isEqualTo: true)
             .count()
             .get(),

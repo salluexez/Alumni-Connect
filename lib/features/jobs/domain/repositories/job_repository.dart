@@ -10,4 +10,12 @@ abstract class JobRepository {
   });
   
   Future<Either<Failure, void>> createJob(JobEntity job);
+
+  Future<Either<Failure, void>> expressInterest({
+    required String jobId,
+    required String applicantUid,
+    required Map<String, dynamic> interestData,
+  });
+
+  Future<Either<Failure, void>> toggleLike(String jobId, String uid);
 }

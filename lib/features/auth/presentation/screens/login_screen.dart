@@ -58,12 +58,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
       },
       child: Scaffold(
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSizes.screenPadding),
@@ -80,7 +81,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: 72,
                         height: 72,
                         decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(context).colorScheme.primary,
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                            ],
+                          ),
                           borderRadius: BorderRadius.circular(AppSizes.radiusLg),
                         ),
                         child: const Icon(
@@ -107,9 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text('Welcome back', style: AppTextStyles.h2),
                 const SizedBox(height: AppSizes.xs),
                 Text(
-                  'Sign in to your account',
+                  '',
                   style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.textSecondary),
+                      .copyWith(color: Theme.of(context).hintColor),
                 ),
                 const SizedBox(height: AppSizes.xxl),
 
@@ -123,9 +129,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _emailController,
                         validator: AppValidators.validateEmail,
                         keyboardType: TextInputType.emailAddress,
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.email_outlined,
-                          color: AppColors.textHint,
+                          color: Theme.of(context).hintColor,
                           size: AppSizes.iconMd,
                         ),
                         textInputAction: TextInputAction.next,
@@ -137,9 +143,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _passwordController,
                         validator: AppValidators.validatePassword,
                         isPassword: true,
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.lock_outline,
-                          color: AppColors.textHint,
+                          color: Theme.of(context).hintColor,
                           size: AppSizes.iconMd,
                         ),
                         textInputAction: TextInputAction.done,
@@ -177,15 +183,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 // ── Divider ───────────────────────────────
                 Row(
                   children: [
-                    const Expanded(child: Divider(color: AppColors.divider)),
+                    Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: AppSizes.paddingMd),
                       child: Text('OR',
                           style: AppTextStyles.labelMedium
-                              .copyWith(color: AppColors.textHint)),
+                              .copyWith(color: Theme.of(context).hintColor)),
                     ),
-                    const Expanded(child: Divider(color: AppColors.divider)),
+                    Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                   ],
                 ),
 
@@ -203,10 +209,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
                         height: 20,
                         width: 20,
-                        errorBuilder: (context, error, stackTrace) => const Icon(
+                        errorBuilder: (context, error, stackTrace) => Icon(
                           Icons.g_mobiledata_rounded,
                           size: 24,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     );
@@ -221,13 +227,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text(AppStrings.dontHaveAccount,
                         style: AppTextStyles.bodyMedium
-                            .copyWith(color: AppColors.textSecondary)),
+                            .copyWith(color: Theme.of(context).hintColor)),
                     GestureDetector(
                       onTap: () => context.push(RouteNames.signup),
                       child: Text(
                         AppStrings.signUp,
                         style: AppTextStyles.labelLarge
-                            .copyWith(color: AppColors.primary),
+                            .copyWith(color: Theme.of(context).colorScheme.primary),
                       ),
                     ),
                   ],

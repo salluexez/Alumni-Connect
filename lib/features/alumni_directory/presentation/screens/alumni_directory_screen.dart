@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/profile_avatar.dart';
@@ -36,94 +35,103 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.alumniDirectory, style: AppTextStyles.h3),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list_rounded),
-            onPressed: () => _showFilterSheet(context),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // ── Search Bar ──────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSizes.screenPadding,
-              AppSizes.sm,
-              AppSizes.screenPadding,
-              AppSizes.sm,
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (query) =>
-                  context.read<AlumniCubit>().searchAlumni(query),
-              style: AppTextStyles.bodyMedium,
-              decoration: InputDecoration(
-                hintText: AppStrings.searchAlumni,
-                prefixIcon: const Icon(Icons.search_rounded,
-                    color: AppColors.textHint, size: AppSizes.iconMd),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.close_rounded,
-                            color: AppColors.textHint, size: AppSizes.iconMd),
-                        onPressed: () {
-                          _searchController.clear();
-                          context.read<AlumniCubit>().fetchAlumni();
-                        },
-                      )
-                    : null,
+      backgroundColor: AppColors.background,
+      body: BlocBuilder<AlumniCubit, AlumniState>(
+        builder: (context, state) {
+          return CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 120,
+                floating: false,
+                pinned: true,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                backgroundColor: AppColors.background,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: false,
+                  titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 8),
+                  title: Text('Directory', style: AppTextStyles.h1),
+                ),
+                actions: [
+                  IconButton(
+                    onPressed: () => _showFilterSheet(context),
+                    icon: const Icon(Icons.tune_rounded, color: AppColors.primary),
+                  ),
+                  const SizedBox(width: 8),
+                ],
               ),
-            ),
-          ),
+              
+              // ── Search Bar ─────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (query) => context.read<AlumniCubit>().searchAlumni(query),
+                      style: AppTextStyles.bodyMedium,
+                      decoration: InputDecoration(
+                        hintText: 'Search by name, company, or skills',
+                        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
-          // ── List ────────────────────────────────────────
-          Expanded(
-            child: BlocBuilder<AlumniCubit, AlumniState>(
-              builder: (context, state) {
-                if (state is AlumniLoading || state is AlumniInitial) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  );
-                }
-                if (state is AlumniError) {
-                  return EmptyState(
+              // ── Content ────────────────────────────────────
+              if (state is AlumniLoading || state is AlumniInitial)
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                )
+              else if (state is AlumniError)
+                SliverFillRemaining(
+                  child: EmptyState(
                     icon: Icons.error_outline_rounded,
-                    title: 'Failed to load',
+                    title: 'Load failed',
                     subtitle: state.message,
-                    actionLabel: 'Retry',
+                    actionLabel: 'Try Again',
                     onAction: () => context.read<AlumniCubit>().fetchAlumni(),
-                  );
-                }
-                if (state is AlumniLoaded) {
-                  if (state.alumni.isEmpty) {
-                    return EmptyState(
-                      icon: Icons.people_outline_rounded,
-                      title: AppStrings.noAlumniFound,
-                      subtitle: 'Try a different search or filter',
-                    );
-                  }
-                  return ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.screenPadding,
-                      vertical: AppSizes.sm,
+                  ),
+                )
+              else if (state is AlumniLoaded)
+                if (state.alumni.isEmpty)
+                  const SliverFillRemaining(
+                    child: EmptyState(
+                      icon: Icons.people_rounded,
+                      title: 'No results found',
+                      subtitle: 'Try adjusting your search query.',
                     ),
-                    itemCount: state.alumni.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: AppSizes.sm),
-                    itemBuilder: (context, index) => AlumniCard(
-                      user: state.alumni[index],
-                      onTap: () =>
-                          context.push('/alumni/${state.alumni[index].uid}'),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.lg),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final alumni = state.alumni[index];
+                          return _AlumniListItem(
+                            alumni: alumni,
+                            onTap: () => context.push('/alumni/${alumni.uid}'),
+                          );
+                        },
+                        childCount: state.alumni.length,
+                      ),
                     ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ],
+                  ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -133,40 +141,37 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppSizes.radiusXl),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
       builder: (_) => const _FilterSheet(),
     );
   }
 }
 
-// ── Alumni Card ───────────────────────────────────────────
-class AlumniCard extends StatelessWidget {
-  final UserEntity user;
+class _AlumniListItem extends StatelessWidget {
+  final UserEntity alumni;
   final VoidCallback onTap;
 
-  const AlumniCard({super.key, required this.user, required this.onTap});
+  const _AlumniListItem({required this.alumni, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSizes.paddingMd),
+        margin: const EdgeInsets.only(bottom: AppSizes.sm),
+        padding: const EdgeInsets.all(AppSizes.md),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          border: Border.all(color: AppColors.border, width: 0.5),
         ),
         child: Row(
           children: [
             ProfileAvatar(
-              imageUrl: user.photoUrl,
-              name: user.name,
-              size: AppSizes.avatarMd,
-              backgroundColor: _getAvatarColor(user.name),
+              imageUrl: alumni.photoUrl,
+              name: alumni.name,
+              size: 50,
+              backgroundColor: AppColors.background,
             ),
             const SizedBox(width: AppSizes.md),
             Expanded(
@@ -175,149 +180,74 @@ class AlumniCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        child: Text(
-                          user.name,
-                          style: AppTextStyles.h4,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (user.isAvailableForMentoring)
+                      Text(alumni.name, style: AppTextStyles.labelLarge),
+                      if (alumni.isAvailableForMentoring) ...[
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.success.withValues(alpha: 0.15),
-                            borderRadius:
-                                BorderRadius.circular(AppSizes.radiusFull),
-                          ),
-                          child: Text(
-                            'Mentoring',
-                            style: AppTextStyles.labelSmall.copyWith(
-                                color: AppColors.success,
-                                fontWeight: FontWeight.w600),
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.success,
+                            shape: BoxShape.circle,
                           ),
                         ),
+                      ],
                     ],
                   ),
-                  if (user.position != null || user.company != null) ...[
-                    const SizedBox(height: 2),
+                  if (alumni.company != null)
                     Text(
-                      [user.position, user.company]
-                          .where((e) => e != null && e.isNotEmpty)
-                          .join(' @ '),
-                      style: AppTextStyles.bodySmall
-                          .copyWith(color: AppColors.textSecondary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      alumni.company!,
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                     ),
-                  ],
-                  if (user.batchYear != null) ...[
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 11,
-                          color: AppColors.textHint,
-                        ),
-                        const SizedBox(width: 3),
-                        Text('Batch ${user.batchYear}',
-                            style: AppTextStyles.caption),
-                      ],
+                  if (alumni.batchYear != null)
+                    Text(
+                      'Class of ${alumni.batchYear}',
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
                     ),
-                  ],
-                  if (user.skills.isNotEmpty) ...[
-                    const SizedBox(height: AppSizes.xs),
-                    SizedBox(
-                      height: 22,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount:
-                            user.skills.length > 3 ? 3 : user.skills.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: AppSizes.xs),
-                        itemBuilder: (context, i) => Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius:
-                                BorderRadius.circular(AppSizes.radiusFull),
-                            border: Border.all(
-                                color: AppColors.border, width: 0.5),
-                          ),
-                          child: Text(
-                            user.skills[i],
-                            style: AppTextStyles.caption
-                                .copyWith(color: AppColors.textSecondary),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right,
-                color: AppColors.textHint, size: AppSizes.iconMd),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
           ],
         ),
       ),
     );
   }
-
-  Color _getAvatarColor(String name) {
-    final colors = [
-      AppColors.primary,
-      const Color(0xFF7C3AED),
-      const Color(0xFF059669),
-      const Color(0xFFD97706),
-      const Color(0xFFEC4899),
-    ];
-    return colors[name.codeUnitAt(0) % colors.length];
-  }
 }
 
-// ── Filter Sheet ──────────────────────────────────────────
 class _FilterSheet extends StatelessWidget {
   const _FilterSheet();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSizes.paddingLg),
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.lg),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Filter', style: AppTextStyles.h3),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Done')),
+            ],
           ),
           const SizedBox(height: AppSizes.lg),
-          Text(AppStrings.filterBy, style: AppTextStyles.h3),
-          const SizedBox(height: AppSizes.lg),
-          Text(AppStrings.batchYear, style: AppTextStyles.labelLarge),
-          const SizedBox(height: AppSizes.sm),
+          Text('Batch Year', style: AppTextStyles.labelMedium),
+          const SizedBox(height: AppSizes.md),
           Wrap(
-            spacing: AppSizes.sm,
-            children: [2024, 2023, 2022, 2021, 2020, 2019, 2018]
-                .map((y) => ChoiceChip(
-                      label: Text('$y'),
-                      selected: false,
-                      onSelected: (_) {},
-                    ))
-                .toList(),
+            spacing: 8,
+            children: [2024, 2023, 2022, 2021, 2020].map((year) {
+              return FilterChip(
+                label: Text('$year'),
+                onSelected: (_) {},
+                backgroundColor: AppColors.background,
+                selectedColor: AppColors.primary.withValues(alpha: 0.2),
+              );
+            }).toList(),
           ),
-          const SizedBox(height: AppSizes.xxl),
+          const SizedBox(height: AppSizes.xl),
         ],
       ),
     );

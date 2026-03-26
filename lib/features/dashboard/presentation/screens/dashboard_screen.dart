@@ -28,6 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoading || state is DashboardInitial) {
@@ -63,7 +64,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// ── Dashboard Body ────────────────────────────────────────
 class _DashboardBody extends StatelessWidget {
   final UserEntity user;
   final Map<String, int> stats;
@@ -78,148 +78,143 @@ class _DashboardBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        // ── App Bar ───────────────────────────────────────
         SliverAppBar(
           expandedHeight: 140,
           floating: false,
           pinned: true,
+          elevation: 0,
           backgroundColor: AppColors.background,
+          scrolledUnderElevation: 0,
           flexibleSpace: FlexibleSpaceBar(
+            centerTitle: false,
+            titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 16),
+            title: Text('Overview', style: AppTextStyles.displaySmall),
             background: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF1A2740), Color(0xFF0F172A)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.primary.withValues(alpha: 0.1),
+                    AppColors.background,
+                  ],
                 ),
-              ),
-              padding: const EdgeInsets.fromLTRB(
-                  AppSizes.screenPadding, 60, AppSizes.screenPadding, 0),
-              child: Row(
-                children: [
-                  ProfileAvatar(
-                    imageUrl: user.photoUrl,
-                    name: user.name,
-                    size: 56,
-                    showBorder: true,
-                  ),
-                  const SizedBox(width: AppSizes.lg),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Welcome back 👋',
-                          style: AppTextStyles.bodySmall
-                              .copyWith(color: AppColors.textSecondary),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(user.name, style: AppTextStyles.h3),
-                        const SizedBox(height: 2),
-                        _RoleBadge(role: user.role),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined,
-                        color: AppColors.textSecondary),
-                    onPressed: () => context.push(RouteNames.notifications),
-                  ),
-                ],
               ),
             ),
           ),
+          actions: [
+            IconButton(
+              onPressed: () => context.push(RouteNames.notifications),
+              icon: const Icon(Icons.notifications_rounded, color: AppColors.textPrimary),
+            ),
+            const SizedBox(width: 8),
+          ],
         ),
 
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(AppSizes.screenPadding),
+            padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Stats Row ───────────────────────────
+                // ── Welcome Header ────────────────────────
+                const SizedBox(height: AppSizes.lg),
                 Row(
                   children: [
-                    _StatCard(
-                      label: 'Connections',
-                      value: '${stats['connections'] ?? 0}',
-                      icon: Icons.people_outline,
-                      color: AppColors.primary,
+                    ProfileAvatar(
+                      imageUrl: user.photoUrl,
+                      name: user.name,
+                      size: 60,
+                      showBorder: true,
                     ),
-                    const SizedBox(width: AppSizes.sm),
-                    _StatCard(
-                      label: 'Mentors',
-                      value: '${stats['mentors'] ?? 0}',
-                      icon: Icons.school_outlined,
-                      color: AppColors.success,
-                    ),
-                    const SizedBox(width: AppSizes.sm),
-                    _StatCard(
-                      label: 'Jobs',
-                      value: '${stats['jobs'] ?? 0}',
-                      icon: Icons.work_outline,
-                      color: AppColors.warning,
+                    const SizedBox(width: AppSizes.lg),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Welcome back,', 
+                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                          Text(user.name.split(' ')[0], 
+                              style: AppTextStyles.displaySmall),
+                        ],
+                      ),
                     ),
                   ],
                 ),
+                const SizedBox(height: AppSizes.xxxl),
 
-                const SizedBox(height: AppSizes.xxl),
+                // ── stats cards ──
+                SizedBox(
+                  height: 110,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      _StatItem(
+                        label: 'Connections',
+                        value: '${stats['connections'] ?? 0}',
+                        icon: Icons.people_rounded,
+                        color: AppColors.primary,
+                      ),
+                      _StatItem(
+                        label: 'Mentors',
+                        value: '${stats['mentors'] ?? 0}',
+                        icon: Icons.school_rounded,
+                        color: AppColors.success,
+                      ),
+                      _StatItem(
+                        label: 'Postings',
+                        value: '${stats['jobs'] ?? 0}',
+                        icon: Icons.work_rounded,
+                        color: AppColors.warning,
+                      ),
+                    ],
+                  ),
+                ),
 
-                // ── Quick Actions ────────────────────────
-                Text('Quick Actions', style: AppTextStyles.h3),
+                const SizedBox(height: AppSizes.xxxl),
+
+                // ── Quick Explore Grid ───────────────────────
+                Text('Explore Network', style: AppTextStyles.h3),
                 const SizedBox(height: AppSizes.lg),
                 GridView.count(
                   crossAxisCount: 2,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: AppSizes.sm,
-                  mainAxisSpacing: AppSizes.sm,
-                  childAspectRatio: 2.2,
+                  crossAxisSpacing: AppSizes.md,
+                  mainAxisSpacing: AppSizes.md,
+                  childAspectRatio: 1.4,
                   children: [
-                    _QuickActionCard(
-                      label: 'Find Alumni',
-                      icon: Icons.search_rounded,
-                      gradient: AppColors.primaryGradient,
+                    _ActionTile(
+                      label: 'Directory',
+                      icon: Icons.contacts_rounded,
+                      color: AppColors.accent,
                       onTap: () => context.go(RouteNames.alumniDirectory),
                     ),
-                    _QuickActionCard(
-                      label: 'Browse Jobs',
-                      icon: Icons.work_rounded,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF059669), Color(0xFF047857)],
-                      ),
-                      onTap: () => context.go(RouteNames.jobs),
+                    _ActionTile(
+                      label: 'Job Board',
+                      icon: Icons.business_center_rounded,
+                      color: AppColors.success,
+                      onTap: () => context.go(RouteNames.posts),
                     ),
-                    _QuickActionCard(
-                      label: 'Find Mentor',
-                      icon: Icons.school_rounded,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
-                      ),
+                    _ActionTile(
+                      label: 'Mentorship',
+                      icon: Icons.psychology_rounded,
+                      color: AppColors.primary,
                       onTap: () => context.go(RouteNames.mentorship),
                     ),
-                    _QuickActionCard(
+                    _ActionTile(
                       label: 'Messages',
                       icon: Icons.chat_bubble_rounded,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFD97706), Color(0xFFB45309)],
-                      ),
+                      color: AppColors.warning,
                       onTap: () => context.go(RouteNames.inbox),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: AppSizes.xxl),
-
-                // ── Profile Completion Banner ────────────
-                if (user.bio == null || user.bio!.isEmpty)
-                  _ProfileCompletionBanner(
-                    onTap: () => context.go(RouteNames.profile),
-                  ),
-
-                const SizedBox(height: AppSizes.xxl),
+                const SizedBox(height: AppSizes.xxxl),
 
                 // ── Recent Activity ──────────────────────
                 Row(
@@ -228,9 +223,7 @@ class _DashboardBody extends StatelessWidget {
                     Text('Recent Activity', style: AppTextStyles.h3),
                     TextButton(
                       onPressed: () {},
-                      child: Text('See all',
-                          style: AppTextStyles.labelMedium
-                              .copyWith(color: AppColors.primary)),
+                      child: const Text('View All'),
                     ),
                   ],
                 ),
@@ -240,19 +233,18 @@ class _DashboardBody extends StatelessWidget {
                     icon: Icons.info_outline,
                     color: AppColors.textHint,
                     title: 'No recent activity',
-                    subtitle: 'Your recent actions will appear here.',
+                    subtitle: 'Your updates will appear here.',
                     time: '',
                   )
                 else
-                  ...activities.map<Widget>((a) => _ActivityItem(
+                  ...activities.take(3).map<Widget>((a) => _ActivityItem(
                     icon: _getActivityIcon(a.type),
-                    color: _getActivityColor(a.type),
+                    color: _getActivityColor(context, a.type),
                     title: a.title,
                     subtitle: a.subtitle,
                     time: _formatTime(a.createdAt),
                   )),
-
-                const SizedBox(height: AppSizes.xxl),
+                const SizedBox(height: 100), // Reserve space for bottom nav
               ],
             ),
           ),
@@ -263,14 +255,14 @@ class _DashboardBody extends StatelessWidget {
 
   IconData _getActivityIcon(String type) {
     return switch (type) {
-      'connection' => Icons.person_add_outlined,
-      'mentorship' => Icons.school_outlined,
-      'job' => Icons.work_outline,
-      _ => Icons.notifications_none_outlined,
+      'connection' => Icons.person_add_rounded,
+      'mentorship' => Icons.school_rounded,
+      'job' => Icons.work_rounded,
+      _ => Icons.notifications_none_rounded,
     };
   }
 
-  Color _getActivityColor(String type) {
+  Color _getActivityColor(BuildContext context, String type) {
     return switch (type) {
       'connection' => AppColors.primary,
       'mentorship' => AppColors.success,
@@ -281,146 +273,93 @@ class _DashboardBody extends StatelessWidget {
 
   String _formatTime(DateTime time) {
     final now = DateTime.now();
-    final difference = now.difference(time);
-    if (difference.inMinutes < 1) return 'Just now';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}m';
-    if (difference.inHours < 24) return '${difference.inHours}h';
-    return '${difference.inDays}d';
+    final diff = now.difference(time);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    return '${diff.inDays}d';
   }
 }
 
-// ── Role Badge ────────────────────────────────────────────
-class _RoleBadge extends StatelessWidget {
-  final UserRole role;
-  const _RoleBadge({required this.role});
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = switch (role) {
-      UserRole.alumni => AppColors.alumniBadge,
-      UserRole.admin => AppColors.adminBadge,
-      UserRole.student => AppColors.studentBadge,
-    };
-    final label = switch (role) {
-      UserRole.alumni => 'Alumni',
-      UserRole.admin => 'Admin',
-      UserRole.student => 'Student',
-    };
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      width: 140,
+      margin: const EdgeInsets.only(right: AppSizes.md),
+      padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        border: Border.all(color: AppColors.border, width: 0.5),
       ),
-      child: Text(label,
-          style: AppTextStyles.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 8),
+              Text(value, style: AppTextStyles.h2),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+        ],
+      ),
     );
   }
 }
 
-// ── Stat Card ─────────────────────────────────────────────
-class _StatCard extends StatelessWidget {
-  final String label, value;
+class _ActionTile extends StatelessWidget {
+  final String label;
   final IconData icon;
   final Color color;
-  const _StatCard({required this.label, required this.value, required this.icon, required this.color});
+  final VoidCallback onTap;
+
+  const _ActionTile({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSizes.paddingMd),
+        padding: const EdgeInsets.all(AppSizes.lg),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
           border: Border.all(color: AppColors.border, width: 0.5),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: color, size: AppSizes.iconMd),
-            const SizedBox(height: AppSizes.xs),
-            Text(value, style: AppTextStyles.h2.copyWith(color: color)),
-            Text(label, style: AppTextStyles.labelSmall),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Quick Action Card ─────────────────────────────────────
-class _QuickActionCard extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final LinearGradient gradient;
-  final VoidCallback onTap;
-  const _QuickActionCard({required this.label, required this.icon, required this.gradient, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSizes.paddingMd,
-          vertical: AppSizes.paddingSm,
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.white, size: AppSizes.iconMd),
-            const SizedBox(width: AppSizes.sm),
-            Text(label,
-                style: AppTextStyles.labelLarge
-                    .copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Profile Completion Banner ─────────────────────────────
-class _ProfileCompletionBanner extends StatelessWidget {
-  final VoidCallback onTap;
-  const _ProfileCompletionBanner({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSizes.paddingMd),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1E3A5F), Color(0xFF1E293B)],
-          ),
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.check_circle_outline, color: AppColors.primary, size: 32),
-            const SizedBox(width: AppSizes.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Complete your profile', style: AppTextStyles.h4),
-                  Text(
-                    'Add bio, skills & photo to get noticed',
-                    style: AppTextStyles.bodySmall,
-                  ),
-                ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
               ),
+              child: Icon(icon, color: color, size: 24),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+            Text(label, style: AppTextStyles.labelLarge),
           ],
         ),
       ),
@@ -428,35 +367,42 @@ class _ProfileCompletionBanner extends StatelessWidget {
   }
 }
 
-// ── Activity Item ─────────────────────────────────────────
 class _ActivityItem extends StatelessWidget {
   final IconData icon;
   final Color color;
-  final String title, subtitle, time;
-  const _ActivityItem({required this.icon, required this.color, required this.title, required this.subtitle, required this.time});
+  final String title;
+  final String subtitle;
+  final String time;
+
+  const _ActivityItem({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.time,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSizes.sm),
+      padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             ),
-            child: Icon(icon, color: color, size: AppSizes.iconMd),
+            child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(width: AppSizes.md),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: AppTextStyles.labelLarge),
-                Text(subtitle, style: AppTextStyles.bodySmall),
+                Text(subtitle, style: AppTextStyles.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),
           ),
@@ -468,16 +414,14 @@ class _ActivityItem extends StatelessWidget {
   }
 }
 
-// ── Shimmer Placeholder ───────────────────────────────────
 class _DashboardShimmer extends StatelessWidget {
   const _DashboardShimmer();
 
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(
-      child: Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      ),
+    return const Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
     );
   }
 }

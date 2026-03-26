@@ -64,6 +64,7 @@ class _SignupScreenState extends State<SignupScreen> {
         }
       },
       child: Scaffold(
+        backgroundColor: AppColors.background,
         appBar: AppBar(
           title: Text(AppStrings.signUp, style: AppTextStyles.h3),
           leading: IconButton(

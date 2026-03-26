@@ -13,6 +13,9 @@ class JobEntity extends Equatable {
   final bool isReferral;
   final String? externalLink;
   final bool isActive;
+  final List<String> interestedUserIds;
+  final String postType; // "referral" or "post"
+  final List<String> likedByUids;
 
   const JobEntity({
     required this.id,
@@ -27,6 +30,9 @@ class JobEntity extends Equatable {
     this.isReferral = false,
     this.externalLink,
     this.isActive = true,
+    this.interestedUserIds = const [],
+    this.postType = "post",
+    this.likedByUids = const [],
   });
 
   @override
@@ -43,5 +49,8 @@ class JobEntity extends Equatable {
         isReferral,
         externalLink,
         isActive,
+        interestedUserIds,
+        postType,
+        likedByUids,
       ];
 }

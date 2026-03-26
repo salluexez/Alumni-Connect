@@ -100,7 +100,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -112,25 +112,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             BlocBuilder<ProfileCubit, ProfileState>(
               builder: (context, state) {
                 if (state is ProfileUpdating) {
-                  return const Center(
+                  return Center(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppSizes.md),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
                       child: SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
                   );
                 }
                 return IconButton(
-                  icon: const Icon(
-                    Icons.check_rounded,
-                    color: AppColors.primary,
-                  ),
+                    icon: Icon(
+                      Icons.check_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   onPressed: _onSave,
                 );
               },
@@ -207,7 +207,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Text(
                   'Separate skills by commas (e.g. Flutter, Dart, Firebase)',
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textHint,
+                    color: Theme.of(context).hintColor,
                   ),
                 ),
                 const SizedBox(height: AppSizes.md),
@@ -224,9 +224,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(AppSizes.md),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: SwitchListTile(
                       title: Text(
@@ -236,11 +236,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       subtitle: Text(
                         'Allow students to send you mentorship requests.',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).hintColor,
                         ),
                       ),
                       value: _isAvailableForMentoring,
-                      activeColor: AppColors.primary,
+                      activeColor: Theme.of(context).colorScheme.primary,
                       contentPadding: EdgeInsets.zero,
                       onChanged: (val) {
                         setState(() {
@@ -249,8 +249,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: AppSizes.xxxl),
+                  const SizedBox(height: AppSizes.xxl),
                 ],
+
 
                 // ── Save Button ───────────────────────────────
                 BlocBuilder<ProfileCubit, ProfileState>(

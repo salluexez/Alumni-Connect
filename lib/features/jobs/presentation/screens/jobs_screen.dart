@@ -5,21 +5,28 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/profile_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import 'package:go_router/go_router.dart';
+import '../../../chat/presentation/cubit/chat_cubit.dart';
+import '../../../chat/presentation/cubit/chat_state.dart';
+import '../../../../navigation/route_names.dart';
+import '../../../chat/domain/entities/chat_entity.dart';
 import '../../domain/entities/job_entity.dart';
 import '../cubit/jobs_cubit.dart';
 import '../cubit/jobs_state.dart';
 
-class JobsScreen extends StatefulWidget {
-  const JobsScreen({super.key});
+class PostsScreen extends StatefulWidget {
+  const PostsScreen({super.key});
 
   @override
-  State<JobsScreen> createState() => _JobsScreenState();
+  State<PostsScreen> createState() => _PostsScreenState();
 }
 
-class _JobsScreenState extends State<JobsScreen> {
+class _PostsScreenState extends State<PostsScreen> {
   bool _referralsOnly = false;
 
   @override
@@ -38,88 +45,106 @@ class _JobsScreenState extends State<JobsScreen> {
     final userRole = (context.read<AuthBloc>().state as AuthAuthenticated).user.role.name;
     final isAlumni = userRole == 'alumni';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Jobs & Referrals', style: AppTextStyles.h3),
-        actions: [
-          if (isAlumni)
-            IconButton(
-              icon: const Icon(Icons.add_box_rounded),
-              onPressed: () => _showPostJobSheet(context),
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Filter Row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
-            child: Row(
-              children: [
-                FilterChip(
-                  label: const Text('All Jobs'),
-                  selected: !_referralsOnly,
-                  onSelected: (val) { if (val) _toggleFilter(false); },
-                  selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                  checkmarkColor: AppColors.primary,
+    return BlocListener<ChatCubit, ChatState>(
+      listener: (context, state) {
+        if (state is ChatRoomCreated) {
+          // Navigate to chat
+          context.pushNamed('chat', pathParameters: {'chatId': state.roomId});
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: BlocBuilder<JobsCubit, JobsState>(
+          builder: (context, state) {
+            return CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+              SliverAppBar(
+                expandedHeight: 120,
+                floating: false,
+                pinned: true,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                backgroundColor: AppColors.background,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: false,
+                  titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 8),
+                  title: Text('Community', style: AppTextStyles.h1),
                 ),
-                const SizedBox(width: AppSizes.sm),
-                FilterChip(
-                  label: const Text('Referrals Only'),
-                  selected: _referralsOnly,
-                  onSelected: (val) { if (val) _toggleFilter(true); },
-                  selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                  checkmarkColor: AppColors.primary,
+                actions: [
+                  IconButton(
+                    onPressed: () => _showPostSheet(context, isAlumni),
+                    icon: const Icon(Icons.add_rounded, color: AppColors.primary, size: 28),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+              
+              // ── Filter Bar ─────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
+                  child: Row(
+                    children: [
+                      _FilterButton(
+                        label: 'All Posts',
+                        isSelected: !_referralsOnly,
+                        onTap: () => _toggleFilter(false),
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterButton(
+                        label: 'Referrals',
+                        isSelected: _referralsOnly,
+                        onTap: () => _toggleFilter(true),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
+              ),
 
-          // List
-          Expanded(
-            child: BlocBuilder<JobsCubit, JobsState>(
-              builder: (context, state) {
-                if (state is JobsLoading || state is JobsInitial) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                }
-                if (state is JobsError) {
-                  return EmptyState(
+              // ── List body ──────────────────────────────────
+              if (state is JobsLoading || state is JobsInitial)
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                )
+              else if (state is JobsError)
+                SliverFillRemaining(
+                  child: EmptyState(
                     icon: Icons.error_outline_rounded,
-                    title: 'Failed to load jobs',
+                    title: 'Sync failed',
                     subtitle: state.message,
-                    actionLabel: 'Retry',
+                    actionLabel: 'Try Again',
                     onAction: () => context.read<JobsCubit>().loadJobs(referralsOnly: _referralsOnly),
-                  );
-                }
-                if (state is JobsLoaded) {
-                  if (state.jobs.isEmpty) {
-                    return const EmptyState(
-                      icon: Icons.work_off_outlined,
-                      title: 'No jobs found',
-                      subtitle: 'Check back later for new opportunities',
-                    );
-                  }
-                  return RefreshIndicator(
-                    onRefresh: () => context.read<JobsCubit>().loadJobs(referralsOnly: _referralsOnly),
-                    child: ListView.separated(
-                      padding: const EdgeInsets.all(AppSizes.screenPadding),
-                      itemCount: state.jobs.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: AppSizes.md),
-                      itemBuilder: (context, index) => _JobCard(job: state.jobs[index]),
+                  ),
+                )
+              else if (state is JobsLoaded)
+                if (state.jobs.isEmpty)
+                  const SliverFillRemaining(
+                    child: EmptyState(
+                      icon: Icons.feed_rounded,
+                      title: 'Nothing here yet',
+                      subtitle: 'Shared opportunities appear here.',
                     ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ],
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(AppSizes.screenPadding, AppSizes.md, AppSizes.screenPadding, 100),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _PostCard(job: state.jobs[index]),
+                        childCount: state.jobs.length,
+                      ),
+                    ),
+                  ),
+            ],
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
 
-  void _showPostJobSheet(BuildContext context) {
-    // simplified entry for now
+  void _showPostSheet(BuildContext context, bool isAlumni) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -127,25 +152,45 @@ class _JobsScreenState extends State<JobsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
-      builder: (_) => BlocProvider.value(
-        value: context.read<JobsCubit>(),
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: AppSizes.screenPadding,
-            right: AppSizes.screenPadding,
-            top: AppSizes.screenPadding,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Post a Job / Referral', style: AppTextStyles.h3),
-              const SizedBox(height: AppSizes.lg),
-              // Simplified for brevity in agent step, normally full form
-              const Text('Job form coming soon!'),
-              const SizedBox(height: AppSizes.xxl),
-            ],
+      builder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: context.read<JobsCubit>()),
+          BlocProvider.value(value: context.read<AuthBloc>()),
+        ],
+        child: _CreatePostForm(
+          isAlumni: isAlumni,
+          onSuccess: () {
+            Navigator.pop(context);
+            context.read<JobsCubit>().loadJobs(referralsOnly: _referralsOnly);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterButton({required this.label, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.labelMedium.copyWith(
+            color: isSelected ? Colors.white : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
       ),
@@ -153,53 +198,194 @@ class _JobsScreenState extends State<JobsScreen> {
   }
 }
 
-class _JobCard extends StatelessWidget {
+class _CreatePostForm extends StatefulWidget {
+  final bool isAlumni;
+  final VoidCallback onSuccess;
+  const _CreatePostForm({required this.isAlumni, required this.onSuccess});
+
+  @override
+  State<_CreatePostForm> createState() => _CreatePostFormState();
+}
+
+class _CreatePostFormState extends State<_CreatePostForm> {
+  final _titleController = TextEditingController();
+  final _companyController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _descController = TextEditingController();
+  bool _isReferral = false;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _companyController.dispose();
+    _locationController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.85,
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          left: AppSizes.screenPadding,
+          right: AppSizes.screenPadding,
+          top: AppSizes.paddingLg,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+          // Handle/Indicator
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSizes.lg),
+          Text('New Post', style: AppTextStyles.h2),
+          const SizedBox(height: AppSizes.xl),
+          
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextField(
+                    label: 'Job Title',
+                    hint: 'e.g. Flutter Developer',
+                    controller: _titleController,
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                  CustomTextField(
+                    label: 'Company',
+                    hint: 'Company Name',
+                    controller: _companyController,
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                  CustomTextField(
+                    label: 'Location',
+                    hint: 'Remote / City',
+                    controller: _locationController,
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                  CustomTextField(
+                    label: 'Description',
+                    hint: 'What is this role about?',
+                    controller: _descController,
+                    maxLines: 4,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                  
+                  // Referral Switch
+                  Container(
+                    padding: const EdgeInsets.all(AppSizes.md),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Available for Referral', style: AppTextStyles.labelLarge),
+                              Text(
+                                'Check this if you can refer candidates directly.',
+                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch.adaptive(
+                          value: _isReferral,
+                          activeColor: AppColors.primary,
+                          onChanged: (val) {
+                            if (val && !widget.isAlumni) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Only Alumni can post referrals.')),
+                              );
+                              return;
+                            }
+                            setState(() => _isReferral = val);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.xl),
+                  
+                  AppButton(
+                    label: 'Share Post',
+                    onPressed: () {
+                      if (_titleController.text.isEmpty) return;
+                      final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+                      final job = JobEntity(
+                        id: DateTime.now().toString(),
+                        title: _titleController.text,
+                        company: _companyController.text,
+                        location: _locationController.text,
+                        type: 'Full-time',
+                        description: _descController.text,
+                        postedByUid: user.uid,
+                        postedByName: user.name,
+                        postedAt: DateTime.now(),
+                        isReferral: _isReferral,
+                      );
+                      context.read<JobsCubit>().postJob(job);
+                      widget.onSuccess();
+                    },
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+}
+
+class _PostCard extends StatelessWidget {
   final JobEntity job;
-  const _JobCard({required this.job});
+  const _PostCard({required this.job});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingLg),
+      margin: const EdgeInsets.only(bottom: AppSizes.md),
+      padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        border: Border.all(color: AppColors.border, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                ),
-                child: const Icon(Icons.business_rounded, color: AppColors.textHint),
-              ),
-              const SizedBox(width: AppSizes.md),
+              ProfileAvatar(size: 32, imageUrl: null, name: job.postedByName),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(job.title, style: AppTextStyles.h4),
-                    const SizedBox(height: 2),
-                    Text(job.company, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary)),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textHint),
-                        const SizedBox(width: 4),
-                        Text(job.location, style: AppTextStyles.caption),
-                        const SizedBox(width: AppSizes.md),
-                        const Icon(Icons.work_outline, size: 14, color: AppColors.textHint),
-                        const SizedBox(width: 4),
-                        Text(job.type, style: AppTextStyles.caption),
-                      ],
+                    Text(job.postedByName, style: AppTextStyles.labelMedium),
+                    Text(
+                      timeago.format(job.postedAt),
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -208,47 +394,128 @@ class _JobCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.15),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppSizes.radiusFull),
                   ),
-                  child: Text('Referral Available', 
-                      style: AppTextStyles.labelSmall.copyWith(color: AppColors.success, fontWeight: FontWeight.bold)),
+                  child: Text('Referral', 
+                    style: AppTextStyles.labelSmall.copyWith(color: AppColors.success)),
                 ),
             ],
           ),
           const SizedBox(height: AppSizes.lg),
+          Text(job.title, style: AppTextStyles.h3),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Text(job.company, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
+              Text(' • ${job.location}', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+            ],
+          ),
+          const SizedBox(height: AppSizes.md),
           Text(
             job.description,
             style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-            maxLines: 3,
+            maxLines: 4,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: AppSizes.lg),
-          const Divider(color: AppColors.divider),
-          const SizedBox(height: AppSizes.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                   const CircleAvatar(
-                    radius: 12,
-                    backgroundColor: AppColors.surfaceVariant,
-                    child: Icon(Icons.person, size: 16, color: AppColors.textHint),
+          if (job.postType == 'referral' && job.postedByUid != (context.read<AuthBloc>().state as AuthAuthenticated).user.uid)
+            Builder(
+              builder: (context) {
+                final authUser = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+                final bool isInterested = job.interestedUserIds.contains(authUser.uid);
+                
+                return AppButton(
+                  label: isInterested ? 'Interested' : 'I\'m Interested',
+                  variant: isInterested ? AppButtonVariant.secondary : AppButtonVariant.primary,
+                  onPressed: isInterested ? null : () {
+                    context.read<JobsCubit>().expressInterest(
+                      jobId: job.id,
+                      applicantUid: authUser.uid,
+                      interestData: {
+                        'applicantName': authUser.name,
+                        'applicantEmail': authUser.email,
+                        'jobTitle': job.title,
+                        'jobCompany': job.company,
+                        'postedByUid': job.postedByUid,
+                        'type': 'referral',
+                      },
+                    );
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    context.read<ChatCubit>().startChat(
+                      job.postedByUid,
+                      name: job.postedByName,
+                      initialMessage: "Hi, I'm interested in this referral for ${job.title} at ${job.company}.",
+                    );
+                  },
+                  height: 44,
+                );
+              }
+            )
+          else if (job.postType != 'referral')
+            Builder(
+              builder: (context) {
+                final authUser = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+                final isLiked = job.likedByUids.contains(authUser.uid);
+                
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: [
+                      _ActionButton(
+                        icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                        label: job.likedByUids.isEmpty ? 'Like' : '${job.likedByUids.length}',
+                        iconColor: isLiked ? Colors.red : AppColors.textSecondary,
+                        textColor: isLiked ? Colors.red : AppColors.textSecondary,
+                        onTap: () {
+                          context.read<JobsCubit>().toggleLike(job.id, authUser.uid);
+                        },
+                      ),
+                      const SizedBox(width: 24),
+                      _ActionButton(
+                        icon: Icons.chat_bubble_outline_rounded,
+                        label: 'Comment',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Comments Coming Soon!')),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Text('Posted by ${job.postedByName}', style: AppTextStyles.caption),
-                  const SizedBox(width: 8),
-                  Text('• ${timeago.format(job.postedAt)}', style: AppTextStyles.caption.copyWith(color: AppColors.textHint)),
-                ],
-              ),
-              AppButton(
-                label: 'Apply',
-                onPressed: () {},
-                height: AppSizes.buttonHeightSm,
-              ),
-            ],
-          ),
+                );
+              }
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? iconColor;
+  final Color? textColor;
+
+  const _ActionButton({
+    required this.icon, 
+    required this.label, 
+    required this.onTap,
+    this.iconColor,
+    this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: iconColor ?? AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(label, style: AppTextStyles.labelMedium.copyWith(color: textColor ?? AppColors.textSecondary)),
         ],
       ),
     );

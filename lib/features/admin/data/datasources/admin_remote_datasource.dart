@@ -18,7 +18,7 @@ class AdminRemoteDataSource {
       final usersFuture = _firestore.collection('users').count().get();
       final studentsFuture = _firestore.collection('users').where('role', isEqualTo: 'student').count().get();
       final alumniFuture = _firestore.collection('users').where('role', isEqualTo: 'alumni').count().get();
-      final jobsFuture = _firestore.collection('jobs').where('isActive', isEqualTo: true).count().get();
+      final jobsFuture = _firestore.collection('posts').where('isActive', isEqualTo: true).count().get();
       final mentorshipsFuture = _firestore.collection('mentorships').count().get();
 
       final results = await Future.wait([

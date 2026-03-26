@@ -33,9 +33,7 @@ class _MentorshipScreenState extends State<MentorshipScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Mentorship Hub', style: AppTextStyles.h3),
-      ),
+      backgroundColor: AppColors.background,
       body: BlocConsumer<MentorshipCubit, MentorshipState>(
         listener: (context, state) {
           if (state is MentorshipActionSuccess) {
@@ -49,34 +47,55 @@ class _MentorshipScreenState extends State<MentorshipScreen> {
           }
         },
         builder: (context, state) {
-          if (state is MentorshipLoading || state is MentorshipInitial) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-          }
-          if (state is MentorshipLoaded) {
-            final requests = state.requests;
-            if (requests.isEmpty) {
-              return EmptyState(
-                icon: Icons.school_outlined,
-                title: 'No Mentorship Requests',
-                subtitle: _isAlumni
-                    ? 'You have no pending mentorship requests from students.'
-                    : 'You haven\'t requested any mentorship yet. Find mentors in the directory.',
-              );
-            }
-            return RefreshIndicator(
-              onRefresh: () => context.read<MentorshipCubit>().loadRequests(asMentor: _isAlumni),
-              child: ListView.separated(
-                padding: const EdgeInsets.all(AppSizes.screenPadding),
-                itemCount: requests.length,
-                separatorBuilder: (context, index) => const SizedBox(height: AppSizes.md),
-                itemBuilder: (context, index) => _MentorshipCard(
-                  request: requests[index],
-                  isAlumni: _isAlumni,
+          return CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 120,
+                floating: false,
+                pinned: true,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                backgroundColor: AppColors.background,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: false,
+                  titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 8),
+                  title: Text('Mentorship', style: AppTextStyles.h1),
                 ),
               ),
-            );
-          }
-          return const SizedBox.shrink();
+
+              if (state is MentorshipLoading || state is MentorshipInitial)
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                )
+              else if (state is MentorshipLoaded)
+                if (state.requests.isEmpty)
+                  SliverFillRemaining(
+                    child: EmptyState(
+                      icon: Icons.school_rounded,
+                      title: 'Connect to grow',
+                      subtitle: _isAlumni
+                          ? 'Incoming requests will appear here.'
+                          : 'Find mentors in the directory to start.',
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.md),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _MentorshipCard(
+                          request: state.requests[index],
+                          isAlumni: _isAlumni,
+                        ),
+                        childCount: state.requests.length,
+                      ),
+                    ),
+                  )
+              else
+                const SliverFillRemaining(child: SizedBox.shrink()),
+            ],
+          );
         },
       ),
     );
@@ -99,11 +118,11 @@ class _MentorshipCard extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingLg),
+      margin: const EdgeInsets.only(bottom: AppSizes.md),
+      padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        border: Border.all(color: AppColors.border, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,13 +131,13 @@ class _MentorshipCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isAlumni ? request.menteeName : 'Request to Mentor',
-                style: AppTextStyles.h4,
+                isAlumni ? request.menteeName : 'Request sent',
+                style: AppTextStyles.labelLarge,
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.15),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppSizes.radiusFull),
                 ),
                 child: Text(
@@ -128,17 +147,23 @@ class _MentorshipCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSizes.sm),
-          Text(request.subject, style: AppTextStyles.labelLarge),
-          const SizedBox(height: AppSizes.sm),
-          Text(request.message, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: AppSizes.md),
+          Text(request.subject, style: AppTextStyles.h4),
+          const SizedBox(height: 4),
+          Text(
+            request.message,
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: AppSizes.lg),
-          Text('Sent ${timeago.format(request.createdAt)}', style: AppTextStyles.caption),
+          Text(
+            timeago.format(request.createdAt),
+            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          ),
           
           if (isAlumni && request.status == 'pending') ...[
             const SizedBox(height: AppSizes.lg),
-            const Divider(color: AppColors.divider),
-            const SizedBox(height: AppSizes.sm),
             Row(
               children: [
                 Expanded(
@@ -146,14 +171,15 @@ class _MentorshipCard extends StatelessWidget {
                     label: 'Decline',
                     variant: AppButtonVariant.secondary,
                     onPressed: () => context.read<MentorshipCubit>().respondToRequest(request.id, 'rejected'),
+                    height: 40,
                   ),
                 ),
                 const SizedBox(width: AppSizes.md),
                 Expanded(
                   child: AppButton(
                     label: 'Accept',
-                    variant: AppButtonVariant.primary,
                     onPressed: () => context.read<MentorshipCubit>().respondToRequest(request.id, 'accepted'),
+                    height: 40,
                   ),
                 ),
               ],

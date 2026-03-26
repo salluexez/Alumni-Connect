@@ -87,7 +87,7 @@ class ChatCubit extends Cubit<ChatState> {
     );
   }
 
-  Future<void> startChat(String otherUserId, {String? name, String? photoUrl}) async {
+  Future<void> startChat(String otherUserId, {String? name, String? photoUrl, String? initialMessage}) async {
     emit(const ChatLoading());
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -96,7 +96,20 @@ class ChatCubit extends Cubit<ChatState> {
         name2: name, photo2: photoUrl);
     result.fold(
       (failure) => emit(ChatError(failure.message)),
-      (roomId) => emit(ChatRoomCreated(roomId)),
+      (roomId) {
+        if (initialMessage != null && initialMessage.isNotEmpty) {
+          final currentUserName = FirebaseAuth.instance.currentUser?.displayName ?? 'User';
+          final message = MessageEntity(
+            id: '',
+            roomId: roomId,
+            senderId: uid,
+            text: initialMessage,
+            sentAt: DateTime.now(),
+          );
+          sendMessage(message, currentUserName);
+        }
+        emit(ChatRoomCreated(roomId));
+      },
     );
   }
 }
