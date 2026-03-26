@@ -15,6 +15,9 @@ class JobModel extends JobEntity {
     super.isReferral,
     super.externalLink,
     super.isActive,
+    super.interestedUserIds,
+    super.postType,
+    super.likedByUids,
   });
 
   factory JobModel.fromFirestore(DocumentSnapshot doc) {
@@ -32,6 +35,9 @@ class JobModel extends JobEntity {
       isReferral: data['isReferral'] ?? false,
       externalLink: data['externalLink'],
       isActive: data['isActive'] ?? true,
+      interestedUserIds: List<String>.from(data['interestedUserIds'] ?? []),
+      postType: data['postType'] ?? 'post',
+      likedByUids: List<String>.from(data['likedByUids'] ?? []),
     );
   }
 
@@ -48,6 +54,9 @@ class JobModel extends JobEntity {
       'isReferral': isReferral,
       'externalLink': externalLink,
       'isActive': isActive,
+      'interestedUserIds': interestedUserIds,
+      'postType': postType,
+      'likedByUids': likedByUids,
     };
   }
 }
