@@ -39,7 +39,7 @@ dependencies:
   timeago: ^3.7.0
   shimmer: ^3.0.0
   fl_chart: ^0.70.2
-  shared_preferences: ^2.3.5
+  shared_preferences: ^2.5.5
   uuid: ^4.5.1
   dartz: ^0.10.1
   agora_rtc_engine: ^6.4.0
