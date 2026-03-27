@@ -8,7 +8,7 @@ class RouteNames {
   // ── Main Shell ──────────────────────────────────────────
   static const String dashboard = '/dashboard';
   static const String alumniDirectory = '/directory';
-  static const String jobs = '/jobs';
+  static const String posts = '/posts';
   static const String inbox = '/inbox';
   static const String profile = '/profile';
 
@@ -18,7 +18,7 @@ class RouteNames {
   static const String mentorship = '/mentorship';
   static const String notifications = '/notifications';
   static const String editProfile = '/profile/edit';
-  static const String postJob = '/jobs/post';
+  static const String createPost = '/posts/create';
 
   // ── Admin ───────────────────────────────────────────────
   static const String adminDashboard = '/admin';
