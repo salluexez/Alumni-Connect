@@ -1,4 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../core/constants/app_colors.dart';
+import '../core/constants/app_text_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../features/alumni_directory/presentation/cubit/alumni_cubit.dart';
@@ -63,11 +66,14 @@ final GoRouter appRouter = GoRouter(
           ),
         ),
         GoRoute(
-          path: RouteNames.jobs,
-          name: 'jobs',
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<JobsCubit>(),
-            child: const JobsScreen(),
+          path: RouteNames.posts,
+          name: 'posts',
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => getIt<JobsCubit>()),
+              BlocProvider(create: (_) => getIt<ChatCubit>()),
+            ],
+            child: const PostsScreen(),
           ),
         ),
         GoRoute(
@@ -156,7 +162,7 @@ final GoRouter appRouter = GoRouter(
 );
 
 
-// ── Main Shell with Material 3 Bottom Nav ────────────────
+
 class _MainShell extends StatelessWidget {
   final Widget child;
   const _MainShell({required this.child});
@@ -164,42 +170,70 @@ class _MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
+    final int selectedIndex = _getIndex(location);
+
     return Scaffold(
+      extendBody: true, // Content should scroll behind blurred nav
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _getIndex(location),
-        onDestinationSelected: (index) => _onNavTap(context, index),
-        backgroundColor: const Color(0xFF1E293B),
-        indicatorColor: const Color(0xFF2463EB).withValues(alpha: 0.2),
-        destinations: const [
-          NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded),
-              label: 'Home'),
-          NavigationDestination(
-              icon: Icon(Icons.people_outline),
-              selectedIcon: Icon(Icons.people_rounded),
-              label: 'Directory'),
-          NavigationDestination(
-              icon: Icon(Icons.work_outline),
-              selectedIcon: Icon(Icons.work_rounded),
-              label: 'Jobs'),
-          NavigationDestination(
-              icon: Icon(Icons.chat_bubble_outline),
-              selectedIcon: Icon(Icons.chat_bubble_rounded),
-              label: 'Chat'),
-          NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Profile'),
-        ],
+      bottomNavigationBar: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.7),
+              border: Border(
+                top: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
+              ),
+            ),
+            child: SafeArea(
+              child: SizedBox(
+                height: 60,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _NavItem(
+                      icon: Icons.house_rounded,
+                      label: 'Home',
+                      isSelected: selectedIndex == 0,
+                      onTap: () => _onNavTap(context, 0),
+                    ),
+                    _NavItem(
+                      icon: Icons.people_rounded,
+                      label: 'Network',
+                      isSelected: selectedIndex == 1,
+                      onTap: () => _onNavTap(context, 1),
+                    ),
+                    _NavItem(
+                      icon: Icons.feed_rounded,
+                      label: 'Posts',
+                      isSelected: selectedIndex == 2,
+                      onTap: () => _onNavTap(context, 2),
+                    ),
+                    _NavItem(
+                      icon: Icons.chat_bubble_rounded,
+                      label: 'Inbox',
+                      isSelected: selectedIndex == 3,
+                      onTap: () => _onNavTap(context, 3),
+                    ),
+                    _NavItem(
+                      icon: Icons.person_rounded,
+                      label: 'Me',
+                      isSelected: selectedIndex == 4,
+                      onTap: () => _onNavTap(context, 4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
   int _getIndex(String path) {
     if (path.startsWith(RouteNames.alumniDirectory)) return 1;
-    if (path.startsWith(RouteNames.jobs)) return 2;
+    if (path.startsWith(RouteNames.posts)) return 2;
     if (path.startsWith(RouteNames.inbox)) return 3;
     if (path.startsWith(RouteNames.profile)) return 4;
     return 0;
@@ -207,16 +241,52 @@ class _MainShell extends StatelessWidget {
 
   void _onNavTap(BuildContext context, int index) {
     switch (index) {
-      case 0:
-        context.go(RouteNames.dashboard);
-      case 1:
-        context.go(RouteNames.alumniDirectory);
-      case 2:
-        context.go(RouteNames.jobs);
-      case 3:
-        context.go(RouteNames.inbox);
-      case 4:
-        context.go(RouteNames.profile);
+      case 0: context.go(RouteNames.dashboard); break;
+      case 1: context.go(RouteNames.alumniDirectory); break;
+      case 2: context.go(RouteNames.posts); break;
+      case 3: context.go(RouteNames.inbox); break;
+      case 4: context.go(RouteNames.profile); break;
     }
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isSelected ? AppColors.primary : AppColors.textSecondary;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 60,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: color,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
