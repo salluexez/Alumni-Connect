@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_cubit.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
@@ -17,6 +18,9 @@ class AlumniConnectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (_) => ThemeCubit(),
+        ),
         BlocProvider(
           create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
         ),
@@ -43,11 +47,15 @@ class AlumniConnectApp extends StatelessWidget {
             },
           ),
         ],
-        child: MaterialApp.router(
-          title: 'Alumni Connect',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.darkTheme,
-          routerConfig: appRouter,
+        child: BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, themeState) {
+            return MaterialApp.router(
+              title: 'Alumni Connect',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.themeFromPalette(themeState.palette),
+              routerConfig: appRouter,
+            );
+          },
         ),
       ),
     );
