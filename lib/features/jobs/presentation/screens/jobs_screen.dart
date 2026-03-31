@@ -146,11 +146,12 @@ class _PostsScreenState extends State<PostsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
-      builder: (_) => MultiBlocProvider(
+      builder: (sheetContext) => MultiBlocProvider(
         providers: [
           BlocProvider.value(value: context.read<JobsCubit>()),
           BlocProvider.value(value: context.read<AuthBloc>()),
@@ -158,7 +159,7 @@ class _PostsScreenState extends State<PostsScreen> {
         child: _CreatePostForm(
           isAlumni: isAlumni,
           onSuccess: () {
-            Navigator.pop(context);
+            Navigator.pop(sheetContext);
             context.read<JobsCubit>().loadJobs(referralsOnly: _referralsOnly);
           },
         ),
@@ -223,14 +224,17 @@ class _CreatePostFormState extends State<_CreatePostForm> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
+
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.85,
       child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          left: AppSizes.screenPadding,
-          right: AppSizes.screenPadding,
-          top: AppSizes.paddingLg,
+        padding: EdgeInsets.fromLTRB(
+          AppSizes.screenPadding,
+          AppSizes.paddingLg,
+          AppSizes.screenPadding,
+          keyboardPadding > 0 ? keyboardPadding + AppSizes.md : bottomPadding + AppSizes.lg,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,32 +326,33 @@ class _CreatePostFormState extends State<_CreatePostForm> {
                     ),
                   ),
                   const SizedBox(height: AppSizes.xl),
-                  
-                  AppButton(
-                    label: 'Share Post',
-                    onPressed: () {
-                      if (_titleController.text.isEmpty) return;
-                      final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-                      final job = JobEntity(
-                        id: DateTime.now().toString(),
-                        title: _titleController.text,
-                        company: _companyController.text,
-                        location: _locationController.text,
-                        type: 'Full-time',
-                        description: _descController.text,
-                        postedByUid: user.uid,
-                        postedByName: user.name,
-                        postedAt: DateTime.now(),
-                        isReferral: _isReferral,
-                      );
-                      context.read<JobsCubit>().postJob(job);
-                      widget.onSuccess();
-                    },
-                  ),
-                  const SizedBox(height: AppSizes.lg),
                 ],
               ),
             ),
+          ),
+          
+          // ── Fixed Bottom Button ──────────────────────────
+          const SizedBox(height: AppSizes.lg),
+          AppButton(
+            label: 'Share Post',
+            onPressed: () {
+              if (_titleController.text.isEmpty) return;
+              final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+              final job = JobEntity(
+                id: DateTime.now().toString(),
+                title: _titleController.text,
+                company: _companyController.text,
+                location: _locationController.text,
+                type: 'Full-time',
+                description: _descController.text,
+                postedByUid: user.uid,
+                postedByName: user.name,
+                postedAt: DateTime.now(),
+                isReferral: _isReferral,
+              );
+              context.read<JobsCubit>().postJob(job);
+              widget.onSuccess();
+            },
           ),
         ],
       ),
