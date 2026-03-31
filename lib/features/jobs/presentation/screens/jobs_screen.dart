@@ -13,8 +13,6 @@ import '../../../auth/presentation/bloc/auth_state.dart';
 import 'package:go_router/go_router.dart';
 import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../chat/presentation/cubit/chat_state.dart';
-import '../../../../navigation/route_names.dart';
-import '../../../chat/domain/entities/chat_entity.dart';
 import '../../domain/entities/job_entity.dart';
 import '../cubit/jobs_cubit.dart';
 import '../cubit/jobs_state.dart';
@@ -309,7 +307,7 @@ class _CreatePostFormState extends State<_CreatePostForm> {
                         ),
                         Switch.adaptive(
                           value: _isReferral,
-                          activeColor: AppColors.primary,
+                          activeTrackColor: AppColors.primary,
                           onChanged: (val) {
                             if (val && !widget.isAlumni) {
                               ScaffoldMessenger.of(context).showSnackBar(

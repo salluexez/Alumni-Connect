@@ -240,7 +240,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       value: _isAvailableForMentoring,
-                      activeColor: Theme.of(context).colorScheme.primary,
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
                       contentPadding: EdgeInsets.zero,
                       onChanged: (val) {
                         setState(() {

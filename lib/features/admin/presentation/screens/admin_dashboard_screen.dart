@@ -216,7 +216,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       return ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding),
         itemCount: state.users.length,
-        separatorBuilder: (_, __) => const Divider(),
+        separatorBuilder: (_, index) => const Divider(),
         itemBuilder: (context, index) {
           final user = state.users[index];
           return _UserListItem(user: user);
