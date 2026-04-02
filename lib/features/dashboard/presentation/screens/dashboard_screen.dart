@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/glass_container.dart';
+import '../../../../core/widgets/profile_avatar.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 
 import '../../../../navigation/route_names.dart';
