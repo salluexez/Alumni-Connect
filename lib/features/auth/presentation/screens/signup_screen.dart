@@ -64,155 +64,146 @@ class _SignupScreenState extends State<SignupScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          title: Text(AppStrings.signUp, style: AppTextStyles.h3),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => context.pop(),
+        backgroundColor: Colors.black,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment.bottomRight,
+              radius: 1.5,
+              colors: [
+                AppColors.primary.withValues(alpha: 0.1),
+                Colors.black,
+              ],
+            ),
           ),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSizes.screenPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSizes.lg),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSizes.screenPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                    onPressed: () => context.pop(),
+                  ),
+                  const SizedBox(height: AppSizes.lg),
 
-                Text('Create your account', style: AppTextStyles.h2),
-                const SizedBox(height: AppSizes.xs),
-                Text(
-                  'Join the Alumni Connect community',
-                  style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.textSecondary),
-                ),
-
-                const SizedBox(height: AppSizes.xxl),
-
-                // ── Role Selector ─────────────────────────
-                Text(AppStrings.selectRole, style: AppTextStyles.labelLarge),
-                const SizedBox(height: AppSizes.sm),
-                Row(
-                  children: [
-                    _RoleChip(
-                      label: AppStrings.student,
-                      icon: Icons.person_outline,
-                      isSelected: _selectedRole == UserRole.student,
-                      onTap: () =>
-                          setState(() => _selectedRole = UserRole.student),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Create Account', style: AppTextStyles.h1),
+                        const SizedBox(height: AppSizes.xs),
+                        Text(
+                          'Join the Alumni Connect community today',
+                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: AppSizes.sm),
-                    _RoleChip(
-                      label: AppStrings.alumni,
-                      icon: Icons.school_outlined,
-                      isSelected: _selectedRole == UserRole.alumni,
-                      onTap: () =>
-                          setState(() => _selectedRole = UserRole.alumni),
+                  ),
+
+                  const SizedBox(height: AppSizes.xxl),
+
+                  GlassContainer(
+                    padding: const EdgeInsets.all(AppSizes.xl),
+                    opacity: 0.08,
+                    blur: 30,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      width: 0.8,
                     ),
-                  ],
-                ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── Role Selector ─────────────────────────
+                        Text(AppStrings.selectRole, style: AppTextStyles.labelMedium.copyWith(color: Colors.white70)),
+                        const SizedBox(height: AppSizes.md),
+                        Row(
+                          children: [
+                            _RoleChip(
+                              label: AppStrings.student,
+                              isSelected: _selectedRole == UserRole.student,
+                              onTap: () => setState(() => _selectedRole = UserRole.student),
+                            ),
+                            const SizedBox(width: AppSizes.md),
+                            _RoleChip(
+                              label: AppStrings.alumni,
+                              isSelected: _selectedRole == UserRole.alumni,
+                              onTap: () => setState(() => _selectedRole = UserRole.alumni),
+                            ),
+                          ],
+                        ),
 
-                const SizedBox(height: AppSizes.xxl),
+                        const SizedBox(height: AppSizes.xxl),
 
-                // ── Form ──────────────────────────────────
-                Form(
-                  key: _formKey,
-                  child: Column(
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              CustomTextField(
+                                label: AppStrings.fullName,
+                                hint: 'Mohammed Ali',
+                                controller: _nameController,
+                                validator: AppValidators.validateName,
+                                prefixIcon: const Icon(Icons.person_outline, color: Colors.white54, size: 20),
+                              ),
+                              const SizedBox(height: AppSizes.lg),
+                              CustomTextField(
+                                label: AppStrings.email,
+                                hint: 'you@example.com',
+                                controller: _emailController,
+                                validator: AppValidators.validateEmail,
+                                keyboardType: TextInputType.emailAddress,
+                                prefixIcon: const Icon(Icons.email_outlined, color: Colors.white54, size: 20),
+                              ),
+                              const SizedBox(height: AppSizes.lg),
+                              CustomTextField(
+                                label: AppStrings.password,
+                                hint: 'Min 6 characters',
+                                controller: _passwordController,
+                                validator: AppValidators.validatePassword,
+                                isPassword: true,
+                                prefixIcon: const Icon(Icons.lock_outline, color: Colors.white54, size: 20),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: AppSizes.xxl),
+
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            return AppButton(
+                              label: 'Create Account',
+                              onPressed: _onSignUp,
+                              isLoading: state is AuthLoading,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSizes.xxl),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CustomTextField(
-                        label: AppStrings.fullName,
-                        hint: 'Mohammed Ali',
-                        controller: _nameController,
-                        validator: AppValidators.validateName,
-                        prefixIcon: const Icon(
-                          Icons.person_outline,
-                          color: AppColors.textHint,
-                          size: AppSizes.iconMd,
+                      Text(AppStrings.alreadyHaveAccount,
+                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Text(
+                          AppStrings.login,
+                          style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
                         ),
-                      ),
-                      const SizedBox(height: AppSizes.lg),
-                      CustomTextField(
-                        label: AppStrings.email,
-                        hint: 'you@example.com',
-                        controller: _emailController,
-                        validator: AppValidators.validateEmail,
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: const Icon(
-                          Icons.email_outlined,
-                          color: AppColors.textHint,
-                          size: AppSizes.iconMd,
-                        ),
-                      ),
-                      const SizedBox(height: AppSizes.lg),
-                      CustomTextField(
-                        label: AppStrings.password,
-                        hint: 'Min 6 characters',
-                        controller: _passwordController,
-                        validator: AppValidators.validatePassword,
-                        isPassword: true,
-                        prefixIcon: const Icon(
-                          Icons.lock_outline,
-                          color: AppColors.textHint,
-                          size: AppSizes.iconMd,
-                        ),
-                      ),
-                      const SizedBox(height: AppSizes.lg),
-                      CustomTextField(
-                        label: AppStrings.confirmPassword,
-                        hint: 'Re-enter your password',
-                        controller: _confirmPasswordController,
-                        validator: (val) => AppValidators.validateConfirmPassword(
-                          val,
-                          _passwordController.text,
-                        ),
-                        isPassword: true,
-                        prefixIcon: const Icon(
-                          Icons.lock_outline,
-                          color: AppColors.textHint,
-                          size: AppSizes.iconMd,
-                        ),
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _onSignUp(),
                       ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: AppSizes.xxl),
-
-                // ── Sign Up Button ────────────────────────
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      label: 'Create Account',
-                      onPressed: _onSignUp,
-                      isLoading: state is AuthLoading,
-                    );
-                  },
-                ),
-
-                const SizedBox(height: AppSizes.xl),
-
-                // ── Login Link ────────────────────────────
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppStrings.alreadyHaveAccount,
-                        style: AppTextStyles.bodyMedium
-                            .copyWith(color: AppColors.textSecondary)),
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Text(
-                        AppStrings.login,
-                        style: AppTextStyles.labelLarge
-                            .copyWith(color: AppColors.primary),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSizes.lg),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -221,16 +212,13 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 }
 
-// ── Role Chip Widget ──────────────────────────────────────
 class _RoleChip extends StatelessWidget {
   final String label;
-  final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _RoleChip({
     required this.label,
-    required this.icon,
     required this.isSelected,
     required this.onTap,
   });
@@ -241,42 +229,37 @@ class _RoleChip extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(
-            vertical: AppSizes.paddingMd,
-            horizontal: AppSizes.paddingSm,
-          ),
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.15)
-                : AppColors.surfaceVariant,
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+            color: isSelected ? AppColors.primary : Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(AppSizes.radiusLg),
             border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.border,
-              width: isSelected ? 1.5 : 0.5,
+              color: isSelected ? AppColors.primary : Colors.white.withValues(alpha: 0.1),
+              width: 1,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ]
+                : [],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: AppSizes.iconMd,
-                color: isSelected ? AppColors.primary : AppColors.textHint,
+          child: Center(
+            child: Text(
+              label,
+              style: AppTextStyles.labelLarge.copyWith(
+                color: isSelected ? Colors.white : Colors.white70,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
-              const SizedBox(width: AppSizes.xs),
-              Text(
-                label,
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
