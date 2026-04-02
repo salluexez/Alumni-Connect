@@ -52,8 +52,23 @@ class AppColors {
     end: Alignment.bottomCenter,
   );
 
-  // ── Transparent ─────────────────────────────────────────
+  // ── Glassmorphism ───────────────────────────────────────
+  static const Color glassBase = Color(0x1Affffff); // White with 10% opacity
+  static const Color glassBorder = Color(0x33ffffff); // White with 20% opacity
+  static const Color glassHighlight = Color(0x4Dffffff); // White with 30% opacity
+  static const Color glassDeepBackground = Color(0x66000000); // Black with 40% opacity
+  
+  static const LinearGradient glassGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0x33FFFFFF),
+      Color(0x0FFFFFFF),
+    ],
+  );
+
+  static const Color glassBackground = Color(0xBF1C1C1E); // For blur effects
   static const Color transparent = Colors.transparent;
   static const Color overlay = Color(0x99000000);
-  static const Color glassBackground = Color(0xBF1C1C1E); // For blur effects
 }
+
