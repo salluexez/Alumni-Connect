@@ -1,8 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
 import '../constants/app_text_styles.dart';
 
-enum AppButtonVariant { primary, secondary, ghost, danger }
+enum AppButtonVariant { primary, secondary, ghost, glass, danger }
 
 class AppButton extends StatelessWidget {
   final String label;
@@ -33,10 +35,12 @@ class AppButton extends StatelessWidget {
         AppButtonVariant.primary => ElevatedButton(
             onPressed: isLoading ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              disabledBackgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 4,
+              shadowColor: AppColors.primary.withValues(alpha: 0.3),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               ),
             ),
             child: _buildChild(),
@@ -44,23 +48,45 @@ class AppButton extends StatelessWidget {
         AppButtonVariant.secondary => OutlinedButton(
             onPressed: isLoading ? null : onPressed,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Theme.of(context).colorScheme.primary),
+              side: const BorderSide(color: AppColors.glassBorder),
+              backgroundColor: AppColors.glassBase,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               ),
             ),
-            child: _buildChild(color: Theme.of(context).colorScheme.primary),
+            child: _buildChild(color: Colors.white),
+          ),
+        AppButtonVariant.glass => ClipRRect(
+            borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: ElevatedButton(
+                onPressed: isLoading ? null : onPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.glassBase.withValues(alpha: 0.2),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  side: const BorderSide(color: AppColors.glassBorder, width: 1.2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  ),
+                ),
+                child: _buildChild(),
+              ),
+            ),
           ),
         AppButtonVariant.ghost => TextButton(
             onPressed: isLoading ? null : onPressed,
-            child: _buildChild(color: Theme.of(context).colorScheme.primary),
+            child: _buildChild(color: AppColors.primary),
           ),
         AppButtonVariant.danger => ElevatedButton(
             onPressed: isLoading ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: AppColors.error,
+              elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               ),
             ),
             child: _buildChild(),
@@ -68,6 +94,7 @@ class AppButton extends StatelessWidget {
       },
     );
   }
+
 
   Widget _buildChild({Color color = Colors.white}) {
     if (isLoading) {
