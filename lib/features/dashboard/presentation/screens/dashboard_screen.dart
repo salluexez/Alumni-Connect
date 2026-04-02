@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/widgets/profile_avatar.dart';
+import '../../../../core/widgets/glass_container.dart';
 import '../../../auth/domain/entities/user_entity.dart';
+
 import '../../../../navigation/route_names.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
@@ -295,15 +296,13 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GlassContainer(
       width: 140,
       margin: const EdgeInsets.only(right: AppSizes.md),
       padding: const EdgeInsets.all(AppSizes.lg),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        border: Border.all(color: AppColors.border, width: 0.5),
-      ),
+      opacity: 0.1,
+      blur: 20,
+      border: Border.all(color: AppColors.glassBorder.withValues(alpha: 0.1), width: 0.5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -321,6 +320,7 @@ class _StatItem extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _ActionTile extends StatelessWidget {
@@ -340,13 +340,11 @@ class _ActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: GlassContainer(
         padding: const EdgeInsets.all(AppSizes.lg),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-          border: Border.all(color: AppColors.border, width: 0.5),
-        ),
+        opacity: 0.1,
+        blur: 20,
+        border: Border.all(color: AppColors.glassBorder.withValues(alpha: 0.1), width: 0.5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -365,6 +363,7 @@ class _ActionTile extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _ActivityItem extends StatelessWidget {
