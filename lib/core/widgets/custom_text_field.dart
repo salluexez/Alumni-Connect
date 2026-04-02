@@ -47,42 +47,69 @@ class _CustomTextFieldState extends State<CustomTextField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.label != null) ...[
-          Text(widget.label!, style: AppTextStyles.labelLarge),
-          const SizedBox(height: AppSizes.xs),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              widget.label!,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: Colors.white.withValues(alpha: 0.9),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ],
         TextFormField(
           controller: widget.controller,
+          obscureText: widget.isPassword && _obscureText,
           validator: widget.validator,
           keyboardType: widget.keyboardType,
-          obscureText: widget.isPassword && _obscureText,
-          maxLines: widget.isPassword ? 1 : widget.maxLines,
-          enabled: widget.enabled,
-          onChanged: widget.onChanged,
           textInputAction: widget.textInputAction,
           onFieldSubmitted: widget.onFieldSubmitted,
-          style: AppTextStyles.bodyMedium,
+          enabled: widget.enabled,
+          onChanged: widget.onChanged,
+          maxLines: widget.isPassword ? 1 : widget.maxLines,
+          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
           decoration: InputDecoration(
             hintText: widget.hint,
+            hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.4)),
             prefixIcon: widget.prefixIcon != null
                 ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: widget.prefixIcon,
                   )
                 : null,
-            prefixIconConstraints: const BoxConstraints(minWidth: 48),
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: Theme.of(context).hintColor,
-                      size: AppSizes.iconMd,
+                      _obscureText ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 20,
                     ),
                     onPressed: () => setState(() => _obscureText = !_obscureText),
                   )
                 : widget.suffixIcon,
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.05),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1.2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              borderSide: const BorderSide(color: Color(0xFF0A84FF), width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+            ),
           ),
         ),
       ],
     );
   }
-}
+
