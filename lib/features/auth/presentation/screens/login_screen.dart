@@ -58,192 +58,170 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: AppColors.error,
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSizes.screenPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSizes.xxxl),
-
-                // ── Logo & Header ─────────────────────────
-                Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Theme.of(context).colorScheme.primary,
-                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                        ),
-                        child: const Icon(
-                          Icons.school_rounded,
-                          color: Colors.white,
-                          size: 36,
-                        ),
-                      ),
-                      const SizedBox(height: AppSizes.lg),
-                      Text(AppStrings.appName, style: AppTextStyles.h1),
-                      const SizedBox(height: AppSizes.xs),
-                      Text(
-                        AppStrings.appTagline,
-                        style: AppTextStyles.bodyMedium
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.xxxl),
-
-                // ── Form ──────────────────────────────────
-                Text('Welcome back', style: AppTextStyles.h2),
-                const SizedBox(height: AppSizes.xs),
-                Text(
-                  '',
-                  style: AppTextStyles.bodyMedium
-                      .copyWith(color: Theme.of(context).hintColor),
-                ),
-                const SizedBox(height: AppSizes.xxl),
-
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      CustomTextField(
-                        label: AppStrings.email,
-                        hint: 'you@example.com',
-                        controller: _emailController,
-                        validator: AppValidators.validateEmail,
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: Icon(
-                          Icons.email_outlined,
-                          color: Theme.of(context).hintColor,
-                          size: AppSizes.iconMd,
-                        ),
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: AppSizes.lg),
-                      CustomTextField(
-                        label: AppStrings.password,
-                        hint: 'Enter your password',
-                        controller: _passwordController,
-                        validator: AppValidators.validatePassword,
-                        isPassword: true,
-                        prefixIcon: Icon(
-                          Icons.lock_outline,
-                          color: Theme.of(context).hintColor,
-                          size: AppSizes.iconMd,
-                        ),
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _onLogin(),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // ── Forgot Password ───────────────────────
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text(AppStrings.forgotPassword,
-                        style: AppTextStyles.link),
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.lg),
-
-                // ── Login Button ──────────────────────────
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      label: AppStrings.login,
-                      onPressed: _onLogin,
-                      isLoading: state is AuthLoading,
-                    );
-                  },
-                ),
-
-                const SizedBox(height: AppSizes.lg),
-
-                // ── Divider ───────────────────────────────
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: Theme.of(context).dividerColor)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppSizes.paddingMd),
-                      child: Text('OR',
-                          style: AppTextStyles.labelMedium
-                              .copyWith(color: Theme.of(context).hintColor)),
-                    ),
-                    Expanded(child: Divider(color: Theme.of(context).dividerColor)),
-                  ],
-                ),
-
-                const SizedBox(height: AppSizes.lg),
-
-                // ── Google Sign In ────────────────────────
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      label: AppStrings.continueWithGoogle,
-                      onPressed: _onGoogleSignIn,
-                      variant: AppButtonVariant.secondary,
-                      isLoading: state is AuthLoading,
-                      icon: Image.network(
-                        'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                        height: 20,
-                        width: 20,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.g_mobiledata_rounded,
-                          size: 24,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: AppSizes.xxl),
-
-                // ── Sign Up Link ──────────────────────────
-                Row(
+        backgroundColor: Colors.black,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment.topLeft,
+              radius: 1.5,
+              colors: [
+                AppColors.primary.withValues(alpha: 0.15),
+                Colors.black,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSizes.screenPadding),
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(AppStrings.dontHaveAccount,
-                        style: AppTextStyles.bodyMedium
-                            .copyWith(color: Theme.of(context).hintColor)),
-                    GestureDetector(
-                      onTap: () => context.push(RouteNames.signup),
-                      child: Text(
-                        AppStrings.signUp,
-                        style: AppTextStyles.labelLarge
-                            .copyWith(color: Theme.of(context).colorScheme.primary),
+                    // ── Logo ─────────────────────────
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusXl),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
+                      child: const Icon(
+                        Icons.school_rounded,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                    const SizedBox(height: AppSizes.xxxl),
+
+                    // ── Glass Form Card ────────────────────
+                    GlassContainer(
+                      padding: const EdgeInsets.all(AppSizes.xl),
+                      opacity: 0.08,
+                      blur: 25,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        width: 0.8,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Welcome back', style: AppTextStyles.h2),
+                          const SizedBox(height: AppSizes.xs),
+                          Text(
+                            'Sign in to continue to ${AppStrings.appName}',
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(height: AppSizes.xxl),
+
+                          Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                CustomTextField(
+                                  label: 'Email',
+                                  hint: 'you@example.com',
+                                  controller: _emailController,
+                                  validator: AppValidators.validateEmail,
+                                  keyboardType: TextInputType.emailAddress,
+                                  prefixIcon: const Icon(Icons.email_outlined, color: Colors.white54, size: 20),
+                                ),
+                                const SizedBox(height: AppSizes.lg),
+                                CustomTextField(
+                                  label: 'Password',
+                                  hint: '••••••••',
+                                  controller: _passwordController,
+                                  validator: AppValidators.validatePassword,
+                                  isPassword: true,
+                                  prefixIcon: const Icon(Icons.lock_outline_rounded, color: Colors.white54, size: 20),
+                                  onFieldSubmitted: (_) => _onLogin(),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {},
+                              child: Text(AppStrings.forgotPassword, style: AppTextStyles.link),
+                            ),
+                          ),
+                          const SizedBox(height: AppSizes.lg),
+
+                          BlocBuilder<AuthBloc, AuthState>(
+                            builder: (context, state) {
+                              return AppButton(
+                                label: AppStrings.login,
+                                onPressed: _onLogin,
+                                isLoading: state is AuthLoading,
+                              );
+                            },
+                          ),
+                          
+                          const SizedBox(height: AppSizes.xl),
+                          
+                          Row(
+                            children: [
+                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text('OR', style: AppTextStyles.caption.copyWith(color: Colors.white38)),
+                              ),
+                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+                            ],
+                          ),
+                          
+                          const SizedBox(height: AppSizes.xl),
+
+                          AppButton(
+                            label: 'Google',
+                            onPressed: _onGoogleSignIn,
+                            variant: AppButtonVariant.glass,
+                            icon: const Icon(Icons.login_rounded, size: 18),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSizes.xxxl),
+
+                    // ── Register Link ──
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(AppStrings.dontHaveAccount,
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => context.push(RouteNames.signup),
+                          child: Text(
+                            AppStrings.signUp,
+                            style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSizes.lg),
-              ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+
 }
