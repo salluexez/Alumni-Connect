@@ -13,8 +13,10 @@ import '../../../auth/presentation/bloc/auth_state.dart';
 import 'package:go_router/go_router.dart';
 import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../chat/presentation/cubit/chat_state.dart';
+import '../../../../core/widgets/glass_container.dart';
 import '../../domain/entities/job_entity.dart';
 import '../cubit/jobs_cubit.dart';
+
 import '../cubit/jobs_state.dart';
 
 class PostsScreen extends StatefulWidget {
@@ -367,12 +369,14 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GlassContainer(
       margin: const EdgeInsets.only(bottom: AppSizes.md),
       padding: const EdgeInsets.all(AppSizes.lg),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+      opacity: 0.1,
+      blur: 20,
+      border: Border.all(
+        color: AppColors.glassBorder.withValues(alpha: 0.1),
+        width: 1,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,7 +434,7 @@ class _PostCard extends StatelessWidget {
                 
                 return AppButton(
                   label: isInterested ? 'Interested' : 'I\'m Interested',
-                  variant: isInterested ? AppButtonVariant.secondary : AppButtonVariant.primary,
+                  variant: isInterested ? AppButtonVariant.secondary : AppButtonVariant.glass,
                   onPressed: isInterested ? null : () {
                     context.read<JobsCubit>().expressInterest(
                       jobId: job.id,
@@ -493,6 +497,7 @@ class _PostCard extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _ActionButton extends StatelessWidget {
