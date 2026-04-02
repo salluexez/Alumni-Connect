@@ -177,57 +177,65 @@ class _MainShell extends StatelessWidget {
       body: child,
       bottomNavigationBar: ClipRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Container(
+            height: 90, // Increased for safe area
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.7),
+              color: Colors.black.withValues(alpha: 0.5),
               border: Border(
                 top: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
               ),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withValues(alpha: 0.05),
+                  Colors.white.withValues(alpha: 0.00),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
             child: SafeArea(
-              child: SizedBox(
-                height: 60,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _NavItem(
-                      icon: Icons.house_rounded,
-                      label: 'Home',
-                      isSelected: selectedIndex == 0,
-                      onTap: () => _onNavTap(context, 0),
-                    ),
-                    _NavItem(
-                      icon: Icons.people_rounded,
-                      label: 'Network',
-                      isSelected: selectedIndex == 1,
-                      onTap: () => _onNavTap(context, 1),
-                    ),
-                    _NavItem(
-                      icon: Icons.feed_rounded,
-                      label: 'Posts',
-                      isSelected: selectedIndex == 2,
-                      onTap: () => _onNavTap(context, 2),
-                    ),
-                    _NavItem(
-                      icon: Icons.chat_bubble_rounded,
-                      label: 'Inbox',
-                      isSelected: selectedIndex == 3,
-                      onTap: () => _onNavTap(context, 3),
-                    ),
-                    _NavItem(
-                      icon: Icons.person_rounded,
-                      label: 'Me',
-                      isSelected: selectedIndex == 4,
-                      onTap: () => _onNavTap(context, 4),
-                    ),
-                  ],
-                ),
+              top: false,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavItem(
+                    icon: Icons.house_rounded,
+                    label: 'Home',
+                    isSelected: selectedIndex == 0,
+                    onTap: () => _onNavTap(context, 0),
+                  ),
+                  _NavItem(
+                    icon: Icons.people_rounded,
+                    label: 'Network',
+                    isSelected: selectedIndex == 1,
+                    onTap: () => _onNavTap(context, 1),
+                  ),
+                  _NavItem(
+                    icon: Icons.feed_rounded,
+                    label: 'Posts',
+                    isSelected: selectedIndex == 2,
+                    onTap: () => _onNavTap(context, 2),
+                  ),
+                  _NavItem(
+                    icon: Icons.chat_bubble_rounded,
+                    label: 'Inbox',
+                    isSelected: selectedIndex == 3,
+                    onTap: () => _onNavTap(context, 3),
+                  ),
+                  _NavItem(
+                    icon: Icons.person_rounded,
+                    label: 'Me',
+                    isSelected: selectedIndex == 4,
+                    onTap: () => _onNavTap(context, 4),
+                  ),
+                ],
               ),
             ),
           ),
         ),
       ),
+
     );
   }
 
@@ -269,10 +277,17 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: SizedBox(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: color, size: 24),
             const SizedBox(height: 4),
@@ -280,8 +295,9 @@ class _NavItem extends StatelessWidget {
               label,
               style: AppTextStyles.labelSmall.copyWith(
                 color: color,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 10,
+                letterSpacing: 0.2,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],
@@ -289,4 +305,5 @@ class _NavItem extends StatelessWidget {
       ),
     );
   }
+
 }
