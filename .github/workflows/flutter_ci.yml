@@ -26,7 +26,6 @@ jobs:
           mkdir -p lib
           if [ ! -f "lib/firebase_options.dart" ]; then
             echo "import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;" > lib/firebase_options.dart
-            echo "import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;" >> lib/firebase_options.dart
             echo "class DefaultFirebaseOptions { static FirebaseOptions get currentPlatform => android; static const FirebaseOptions android = FirebaseOptions(apiKey: 'DUMMY', appId: 'DUMMY', messagingSenderId: 'DUMMY', projectId: 'DUMMY', storageBucket: 'DUMMY'); }" >> lib/firebase_options.dart
           fi
 
