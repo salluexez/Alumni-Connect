@@ -53,7 +53,7 @@ class _AlumniProfileScreenState extends State<AlumniProfileScreen> {
               title: 'Failed to load profile',
               subtitle: state.message,
               actionLabel: 'Go back',
-              onAction: () => context.pop(),
+              onAction: () => context.canPop() ? context.pop() : null,
             );
           }
           final user = (state is ProfileLoaded)
@@ -151,10 +151,12 @@ class _ProfileBody extends StatelessWidget {
           expandedHeight: 200,
           pinned: true,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => context.pop(),
-          ),
+          leading: context.canPop()
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () => context.pop(),
+                )
+              : null,
           actions: [
             if (isOwnProfile) ...[
               IconButton(
