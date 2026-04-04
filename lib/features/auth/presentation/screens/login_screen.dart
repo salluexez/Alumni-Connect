@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_sizes.dart';
 import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/constants/app_text_styles.dart';
@@ -47,6 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
@@ -59,21 +61,21 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.error,
+              backgroundColor: colorScheme.error,
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Container(
           decoration: BoxDecoration(
             gradient: RadialGradient(
               center: Alignment.topLeft,
               radius: 1.5,
               colors: [
-                AppColors.primary.withValues(alpha: 0.15),
-                Colors.black,
+                colorScheme.primary.withValues(alpha: 0.15),
+                theme.scaffoldBackgroundColor,
               ],
             ),
           ),
@@ -89,11 +91,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
+                        gradient: LinearGradient(
+                          colors: [colorScheme.primary, colorScheme.secondary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(AppSizes.radiusXl),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: colorScheme.primary.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -113,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       opacity: 0.08,
                       blur: 25,
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         width: 0.8,
                       ),
                       child: Column(
@@ -123,7 +129,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: AppSizes.xs),
                           Text(
                             'Sign in to continue to ${AppStrings.appName}',
-                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                            style: AppTextStyles.bodyMedium.copyWith(
+                                color: colorScheme.onSurface.withValues(alpha: 0.6)),
                           ),
                           const SizedBox(height: AppSizes.xxl),
 
@@ -137,7 +144,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _emailController,
                                   validator: AppValidators.validateEmail,
                                   keyboardType: TextInputType.emailAddress,
-                                  prefixIcon: const Icon(Icons.email_outlined, color: Colors.white54, size: 20),
+                                  prefixIcon: Icon(Icons.email_outlined, 
+                                      color: colorScheme.onSurface.withValues(alpha: 0.5), size: 20),
                                 ),
                                 const SizedBox(height: AppSizes.lg),
                                 CustomTextField(
@@ -146,7 +154,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _passwordController,
                                   validator: AppValidators.validatePassword,
                                   isPassword: true,
-                                  prefixIcon: const Icon(Icons.lock_outline_rounded, color: Colors.white54, size: 20),
+                                  prefixIcon: Icon(Icons.lock_outline_rounded, 
+                                      color: colorScheme.onSurface.withValues(alpha: 0.5), size: 20),
                                   onFieldSubmitted: (_) => _onLogin(),
                                 ),
                               ],
@@ -157,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {},
-                              child: Text(AppStrings.forgotPassword, style: AppTextStyles.link),
+                              child: const Text(AppStrings.forgotPassword, style: AppTextStyles.link),
                             ),
                           ),
                           const SizedBox(height: AppSizes.lg),
@@ -176,12 +185,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           
                           Row(
                             children: [
-                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+                              Expanded(child: Divider(color: colorScheme.onSurface.withValues(alpha: 0.1))),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                                child: Text('OR', style: AppTextStyles.caption.copyWith(color: Colors.white38)),
+                                child: Text('OR', style: AppTextStyles.caption.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.4))),
                               ),
-                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+                              Expanded(child: Divider(color: colorScheme.onSurface.withValues(alpha: 0.1))),
                             ],
                           ),
                           
@@ -204,13 +213,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(AppStrings.dontHaveAccount,
-                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                            style: AppTextStyles.bodyMedium.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.6))),
                         const SizedBox(width: 4),
                         GestureDetector(
                           onTap: () => context.push(RouteNames.signup),
                           child: Text(
                             AppStrings.signUp,
-                            style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
+                            style: AppTextStyles.labelLarge.copyWith(color: colorScheme.primary),
                           ),
                         ),
                       ],
@@ -224,5 +233,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
 }
