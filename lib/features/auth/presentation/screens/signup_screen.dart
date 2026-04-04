@@ -85,7 +85,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-                    onPressed: () => context.pop(),
+                    onPressed: () => context.canPop() ? context.pop() : context.go(RouteNames.login),
                   ),
                   const SizedBox(height: AppSizes.lg),
 
@@ -195,7 +195,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
                       const SizedBox(width: 4),
                       GestureDetector(
-                        onTap: () => context.pop(),
+                        onTap: () => context.canPop() ? context.pop() : context.go(RouteNames.login),
                         child: Text(
                           AppStrings.login,
                           style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
