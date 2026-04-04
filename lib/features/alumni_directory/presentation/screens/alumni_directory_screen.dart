@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -34,8 +33,11 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.background,
       body: BlocBuilder<AlumniCubit, AlumniState>(
         builder: (context, state) {
           return CustomScrollView(
@@ -47,42 +49,51 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
                 pinned: true,
                 elevation: 0,
                 scrolledUnderElevation: 0,
-                backgroundColor: AppColors.background,
+                backgroundColor: colorScheme.background,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: false,
-                  titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 8),
-                  title: Text('Directory', style: AppTextStyles.h1),
+                  titlePadding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.screenPadding, vertical: 8),
+                  title: Text('Directory',
+                      style: AppTextStyles.h1.copyWith(color: colorScheme.onSurface)),
                 ),
                 actions: [
                   IconButton(
                     onPressed: () => _showFilterSheet(context),
-                    icon: const Icon(Icons.tune_rounded, color: AppColors.primary),
+                    icon: Icon(Icons.tune_rounded, color: colorScheme.primary),
                   ),
                   const SizedBox(width: 8),
                 ],
               ),
-              
+
               // ── Search Bar ─────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: TextField(
                       controller: _searchController,
-                      onChanged: (query) => context.read<AlumniCubit>().searchAlumni(query),
-                      style: AppTextStyles.bodyMedium,
+                      onChanged: (query) =>
+                          context.read<AlumniCubit>().searchAlumni(query),
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: colorScheme.onSurface),
                       decoration: InputDecoration(
                         hintText: 'Search by name, company, or skills',
-                        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
+                        hintStyle: AppTextStyles.bodyMedium
+                            .copyWith(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                        prefixIcon: Icon(Icons.search_rounded,
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                            size: 20),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        filled: false, 
                       ),
                     ),
                   ),
@@ -115,7 +126,8 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.lg),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSizes.screenPadding, vertical: AppSizes.lg),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
@@ -139,9 +151,10 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
   void _showFilterSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
       builder: (_) => const _FilterSheet(),
     );
@@ -156,14 +169,17 @@ class _AlumniListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSizes.sm),
         padding: const EdgeInsets.all(AppSizes.md),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
@@ -171,7 +187,7 @@ class _AlumniListItem extends StatelessWidget {
               imageUrl: alumni.photoUrl,
               name: alumni.name,
               size: 50,
-              backgroundColor: AppColors.background,
+              backgroundColor: colorScheme.surfaceContainer,
             ),
             const SizedBox(width: AppSizes.md),
             Expanded(
@@ -180,14 +196,16 @@ class _AlumniListItem extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(alumni.name, style: AppTextStyles.labelLarge),
+                      Text(alumni.name,
+                          style: AppTextStyles.labelLarge
+                              .copyWith(color: colorScheme.onSurface)),
                       if (alumni.isAvailableForMentoring) ...[
                         const SizedBox(width: 8),
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.success,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary, 
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -197,17 +215,20 @@ class _AlumniListItem extends StatelessWidget {
                   if (alumni.company != null)
                     Text(
                       alumni.company!,
-                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: colorScheme.onSurface.withValues(alpha: 0.6)),
                     ),
                   if (alumni.batchYear != null)
                     Text(
                       'Class of ${alumni.batchYear}',
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.caption
+                          .copyWith(color: colorScheme.onSurface.withValues(alpha: 0.4)),
                     ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+            Icon(Icons.chevron_right_rounded,
+                color: colorScheme.onSurface.withValues(alpha: 0.2)),
           ],
         ),
       ),
@@ -220,6 +241,8 @@ class _FilterSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSizes.lg),
       child: Column(
@@ -230,7 +253,9 @@ class _FilterSheet extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Filter', style: AppTextStyles.h3),
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Done')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Done')),
             ],
           ),
           const SizedBox(height: AppSizes.lg),
@@ -242,8 +267,10 @@ class _FilterSheet extends StatelessWidget {
               return FilterChip(
                 label: Text('$year'),
                 onSelected: (_) {},
-                backgroundColor: AppColors.background,
-                selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                backgroundColor: colorScheme.surfaceContainer,
+                selectedColor: colorScheme.primary.withValues(alpha: 0.2),
+                labelStyle: TextStyle(color: colorScheme.onSurface),
+                side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
               );
             }).toList(),
           ),

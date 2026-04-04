@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -58,7 +57,10 @@ class _AlumniProfileScreenState extends State<AlumniProfileScreen> {
           }
           final user = (state is ProfileLoaded)
               ? state.user
-              : (state as ProfileUpdated).user;
+              : (state is ProfileUpdated) ? (state as ProfileUpdated).user : null;
+          
+          if (user == null) return const SizedBox.shrink();
+
           final currentUserId = FirebaseAuth.instance.currentUser?.uid;
           
           return MultiBlocProvider(
@@ -90,7 +92,6 @@ class _AlumniProfileScreenState extends State<AlumniProfileScreen> {
   }
 }
 
-// ── My Profile Screen ─────────────────────────────────────
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
 
@@ -136,7 +137,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 }
 
-// ── Shared Profile Body ───────────────────────────────────
 class _ProfileBody extends StatelessWidget {
   final UserEntity user;
   final bool isOwnProfile;
@@ -144,13 +144,15 @@ class _ProfileBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return CustomScrollView(
       slivers: [
-        // ── SliverAppBar with Cover ───────────────────────
         SliverAppBar(
-          expandedHeight: 200,
+          expandedHeight: 220,
           pinned: true,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: theme.scaffoldBackgroundColor,
           leading: context.canPop()
               ? IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -160,8 +162,8 @@ class _ProfileBody extends StatelessWidget {
           actions: [
             if (isOwnProfile) ...[
               IconButton(
-                icon: const Icon(Icons.person_outline),
-                tooltip: 'Profile Settings',
+                icon: const Icon(Icons.edit_note_rounded),
+                tooltip: 'Edit Profile',
                 onPressed: () =>
                     context.push(RouteNames.editProfile, extra: user).then((_) {
                   if (context.mounted) {
@@ -170,7 +172,7 @@ class _ProfileBody extends StatelessWidget {
                 }),
               ),
               IconButton(
-                icon: const Icon(Icons.logout_rounded, color: AppColors.error),
+                icon: Icon(Icons.logout_rounded, color: colorScheme.error),
                 tooltip: 'Logout',
                 onPressed: () => _showLogoutDialog(context),
               ),
@@ -180,27 +182,25 @@ class _ProfileBody extends StatelessWidget {
             background: Stack(
               fit: StackFit.expand,
               children: [
-                // Cover gradient
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).scaffoldBackgroundColor,
+                        colorScheme.primary.withValues(alpha: 0.8),
+                        theme.scaffoldBackgroundColor,
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
                   ),
                 ),
-                // Avatar positioned at bottom
                 Positioned(
-                  bottom: 16,
+                  bottom: 20,
                   left: AppSizes.screenPadding,
                   child: ProfileAvatar(
                     imageUrl: user.photoUrl,
                     name: user.name,
-                    size: 80,
+                    size: 90,
                     showBorder: true,
                   ),
                 ),
@@ -215,22 +215,21 @@ class _ProfileBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Name & Role ──────────────────────────
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(user.name, style: AppTextStyles.h1),
+                          Text(user.name, style: AppTextStyles.displaySmall),
                           if (user.position != null || user.company != null)
                             Text(
                               [user.position, user.company]
                                   .where((e) => e != null && e.isNotEmpty)
                                   .join(' @ '),
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: Theme.of(context).hintColor,
+                                color: colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                         ],
@@ -240,8 +239,7 @@ class _ProfileBody extends StatelessWidget {
                   ],
                 ),
 
-                // ── Badges ──────────────────────────────
-                const SizedBox(height: AppSizes.sm),
+                const SizedBox(height: AppSizes.md),
                 Row(
                   children: [
                     if (user.batchYear != null)
@@ -252,17 +250,16 @@ class _ProfileBody extends StatelessWidget {
                     if (user.isAvailableForMentoring) ...[
                       const SizedBox(width: AppSizes.sm),
                       _InfoChip(
-                        icon: Icons.school_outlined,
-                        label: 'Open to Mentoring',
-                        color: AppColors.success,
+                        icon: Icons.stars_rounded, 
+                        label: 'Mentoring',
+                        color: colorScheme.primary,
                       ),
                     ],
                   ],
                 ),
 
-                const SizedBox(height: AppSizes.lg),
+                const SizedBox(height: AppSizes.xl),
 
-                // ── Action Buttons ───────────────────────
                 if (!isOwnProfile)
                   BlocBuilder<ConnectionCubit, ConnectionState>(
                     builder: (context, connState) {
@@ -304,7 +301,6 @@ class _ProfileBody extends StatelessWidget {
                               icon: const Icon(
                                 Icons.chat_bubble_outline,
                                 size: 18,
-                                color: Colors.white,
                               ),
                               height: AppSizes.buttonHeightSm,
                             ),
@@ -316,12 +312,13 @@ class _ProfileBody extends StatelessWidget {
                               isLoading: isLoading,
                               onPressed: isEnabled ? () {
                                 final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-                                final currentUser = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+                                final authState = context.read<AuthBloc>().state;
                                 
-                                if (currentUserId != null) {
+                                if (currentUserId != null && authState is AuthAuthenticated) {
+                                  final currentUser = authState.user;
                                   context.read<ConnectionCubit>().sendRequest(
                                     ConnectionRequestModel(
-                                      id: '', // Will be generated by Firestore
+                                      id: '', 
                                       senderId: currentUserId,
                                       senderName: currentUser.name,
                                       senderPhotoUrl: currentUser.photoUrl,
@@ -337,9 +334,6 @@ class _ProfileBody extends StatelessWidget {
                               icon: Icon(
                                 icon,
                                 size: 18,
-                                color: variant == AppButtonVariant.secondary 
-                                    ? Theme.of(context).colorScheme.onSurface
-                                    : Theme.of(context).colorScheme.primary,
                               ),
                               height: AppSizes.buttonHeightSm,
                             ),
@@ -350,21 +344,22 @@ class _ProfileBody extends StatelessWidget {
                   ),
 
                 const SizedBox(height: AppSizes.xxl),
-                Divider(color: Theme.of(context).dividerColor),
+                Divider(color: colorScheme.outline.withValues(alpha: 0.1)),
                 const SizedBox(height: AppSizes.lg),
 
-                // ── Bio ─────────────────────────────────
                 if (user.bio != null && user.bio!.isNotEmpty) ...[
                   Text('About', style: AppTextStyles.h3),
                   const SizedBox(height: AppSizes.sm),
                   Text(
                     user.bio!,
-                    style: AppTextStyles.bodyMedium.copyWith(height: 1.6),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      height: 1.6,
+                      color: colorScheme.onSurface.withValues(alpha: 0.8),
+                    ),
                   ),
                   const SizedBox(height: AppSizes.lg),
                 ],
 
-                // ── Skills ───────────────────────────────
                 if (user.skills.isNotEmpty) ...[
                   Text('Skills', style: AppTextStyles.h3),
                   const SizedBox(height: AppSizes.sm),
@@ -375,12 +370,7 @@ class _ProfileBody extends StatelessWidget {
                         .map(
                           (s) => Chip(
                             label: Text(s),
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            labelStyle: AppTextStyles.labelMedium,
-                            side: BorderSide(
-                              color: Theme.of(context).dividerColor,
-                              width: 0.5,
-                            ),
+                            backgroundColor: colorScheme.surfaceContainer,
                           ),
                         )
                         .toList(),
@@ -388,14 +378,13 @@ class _ProfileBody extends StatelessWidget {
                   const SizedBox(height: AppSizes.lg),
                 ],
 
-                // ── Contact / Social ─────────────────────
                 Text('Contact', style: AppTextStyles.h3),
                 const SizedBox(height: AppSizes.sm),
                 _ContactRow(icon: Icons.email_outlined, label: user.email),
                 
                 if (isOwnProfile) ...[
                   const SizedBox(height: AppSizes.xxl),
-                  Divider(color: Theme.of(context).dividerColor),
+                  Divider(color: colorScheme.outline.withValues(alpha: 0.1)),
                   const SizedBox(height: AppSizes.lg),
                   Text('App Theme', style: AppTextStyles.h3),
                   const SizedBox(height: AppSizes.md),
@@ -432,7 +421,7 @@ class _ProfileBody extends StatelessWidget {
             },
             child: Text('Logout',
                 style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.error, fontWeight: FontWeight.bold)),
+                    .copyWith(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -440,24 +429,24 @@ class _ProfileBody extends StatelessWidget {
   }
 }
 
-// ── Helper Widgets ────────────────────────────────────────
 class _RolePill extends StatelessWidget {
   final UserRole role;
   const _RolePill({required this.role});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final (color, label) = switch (role) {
-      UserRole.alumni => (AppColors.alumniBadge, 'Alumni'),
-      UserRole.admin => (AppColors.adminBadge, 'Admin'),
-      UserRole.student => (AppColors.studentBadge, 'Student'),
+      UserRole.alumni => (colorScheme.primary, 'Alumni'),
+      UserRole.admin => (colorScheme.error, 'Admin'),
+      UserRole.student => (colorScheme.secondary, 'Student'),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Text(
         label,
@@ -473,28 +462,29 @@ class _RolePill extends StatelessWidget {
 class _InfoChip extends StatelessWidget {
   final IconData icon;
   final String label;
-  final Color color;
+  final Color? color;
   const _InfoChip({
     required this.icon,
     required this.label,
-    this.color = Colors.grey,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
+    final themeColor = color ?? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: themeColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: themeColor.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(label, style: AppTextStyles.caption.copyWith(color: color)),
+          Icon(icon, size: 14, color: themeColor),
+          const SizedBox(width: 6),
+          Text(label, style: AppTextStyles.caption.copyWith(color: themeColor, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -508,13 +498,14 @@ class _ContactRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSizes.xs),
       child: Row(
         children: [
-          Icon(icon, size: AppSizes.iconMd, color: Theme.of(context).hintColor),
+          Icon(icon, size: AppSizes.iconMd, color: colorScheme.onSurface.withValues(alpha: 0.5)),
           const SizedBox(width: AppSizes.sm),
-          Text(label, style: AppTextStyles.bodyMedium),
+          Text(label, style: AppTextStyles.bodyMedium.copyWith(color: colorScheme.onSurface)),
         ],
       ),
     );

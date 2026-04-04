@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../navigation/route_names.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -87,13 +86,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return BlocListener<ProfileCubit, ProfileState>(
       listener: (context, state) {
         if (state is ProfileUpdated) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully'),
-              backgroundColor: AppColors.success,
+            SnackBar(
+              content: const Text('Profile updated successfully'),
+              backgroundColor: Colors.greenAccent,
+              behavior: SnackBarBehavior.floating,
             ),
           );
           if (context.canPop()) {
@@ -105,14 +108,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: colorScheme.error,
+              behavior: SnackBarBehavior.floating,
             ),
           );
         }
       },
       child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Edit Profile'),
+          backgroundColor: theme.scaffoldBackgroundColor,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text('Edit Profile', style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface)),
           actions: [
             BlocBuilder<ProfileCubit, ProfileState>(
               builder: (context, state) {
@@ -125,7 +133,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: colorScheme.primary,
                         ),
                       ),
                     ),
@@ -134,7 +142,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 return IconButton(
                     icon: Icon(
                       Icons.check_rounded,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: colorScheme.primary,
                     ),
                   onPressed: _onSave,
                 );
@@ -149,14 +157,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Basic Info', style: AppTextStyles.h3),
+                Text('Basic Info', style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface)),
                 const SizedBox(height: AppSizes.md),
                 CustomTextField(
                   label: 'Full Name',
                   controller: _nameController,
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Required' : null,
-                  prefixIcon: const Icon(Icons.person_outline),
+                  prefixIcon: Icon(Icons.person_outline, color: colorScheme.onSurface.withValues(alpha: 0.5)),
                 ),
                 const SizedBox(height: AppSizes.md),
                 CustomTextField(
@@ -167,7 +175,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: AppSizes.xxl),
 
-                Text('Professional Details', style: AppTextStyles.h3),
+                Text('Professional Details', style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface)),
                 const SizedBox(height: AppSizes.md),
                 Row(
                   children: [
@@ -176,7 +184,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         label: 'Company',
                         hint: 'e.g. Google',
                         controller: _companyController,
-                        prefixIcon: const Icon(Icons.business_outlined),
+                        prefixIcon: Icon(Icons.business_outlined, color: colorScheme.onSurface.withValues(alpha: 0.5)),
                       ),
                     ),
                     const SizedBox(width: AppSizes.md),
@@ -185,7 +193,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         label: 'Position',
                         hint: 'e.g. Engineer',
                         controller: _positionController,
-                        prefixIcon: const Icon(Icons.work_outline),
+                        prefixIcon: Icon(Icons.work_outline, color: colorScheme.onSurface.withValues(alpha: 0.5)),
                       ),
                     ),
                   ],
@@ -199,54 +207,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         hint: 'e.g. 2024',
                         controller: _batchYearController,
                         keyboardType: TextInputType.number,
-                        prefixIcon: const Icon(Icons.calendar_today_outlined),
+                        prefixIcon: Icon(Icons.calendar_today_outlined, color: colorScheme.onSurface.withValues(alpha: 0.5)),
                       ),
                     ),
-                    const Expanded(child: SizedBox()), // Space filler
+                    const Expanded(child: SizedBox()), 
                   ],
                 ),
                 const SizedBox(height: AppSizes.xxl),
 
-                Text('Skills', style: AppTextStyles.h3),
+                Text('Skills', style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface)),
                 const SizedBox(height: AppSizes.xs),
                 Text(
                   'Separate skills by commas (e.g. Flutter, Dart, Firebase)',
                   style: AppTextStyles.caption.copyWith(
-                    color: Theme.of(context).hintColor,
+                    color: colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
                 const SizedBox(height: AppSizes.md),
                 CustomTextField(
                   label: 'Your Skills',
                   controller: _skillsController,
-                  prefixIcon: const Icon(Icons.code_rounded),
+                  prefixIcon: Icon(Icons.code_rounded, color: colorScheme.onSurface.withValues(alpha: 0.5)),
                 ),
                 const SizedBox(height: AppSizes.xxl),
 
                 if (widget.user.role == UserRole.alumni) ...[
-                  Text('Mentorship', style: AppTextStyles.h3),
+                  Text('Mentorship', style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface)),
                   const SizedBox(height: AppSizes.sm),
                   Container(
-                    padding: const EdgeInsets.all(AppSizes.md),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: colorScheme.surfaceContainer.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      border: Border.all(color: Theme.of(context).dividerColor),
+                      border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
                     ),
-                    child: SwitchListTile(
+                    child: SwitchListTile.adaptive(
                       title: Text(
                         'Open to Mentoring',
-                        style: AppTextStyles.bodyLarge,
+                        style: AppTextStyles.bodyLarge.copyWith(color: colorScheme.onSurface),
                       ),
                       subtitle: Text(
                         'Allow students to send you mentorship requests.',
                         style: AppTextStyles.caption.copyWith(
-                          color: Theme.of(context).hintColor,
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       value: _isAvailableForMentoring,
-                      activeThumbColor: Theme.of(context).colorScheme.primary,
-                      contentPadding: EdgeInsets.zero,
+                      activeColor: colorScheme.primary,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                       onChanged: (val) {
                         setState(() {
                           _isAvailableForMentoring = val;
@@ -257,8 +265,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const SizedBox(height: AppSizes.xxl),
                 ],
 
-
-                // ── Save Button ───────────────────────────────
                 BlocBuilder<ProfileCubit, ProfileState>(
                   builder: (context, state) {
                     return AppButton(
