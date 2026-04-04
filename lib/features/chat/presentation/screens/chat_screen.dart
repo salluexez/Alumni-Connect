@@ -111,7 +111,11 @@ class _ChatScreenState extends State<ChatScreen> {
         titleSpacing: 0,
         leading: BackButton(onPressed: () {
           context.read<ChatCubit>().loadUserRooms();
-          context.pop();
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(RouteNames.inbox);
+          }
         }),
         actions: [
           BlocBuilder<ChatCubit, ChatState>(
