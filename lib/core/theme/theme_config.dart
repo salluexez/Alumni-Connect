@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { vscode, midnight, solarized, cyberpunk, dark }
+enum ThemeType { light, dark, monkey }
 
 class ThemePalette {
   final Color primary;
@@ -11,6 +11,8 @@ class ThemePalette {
   final Color textSecondary;
   final Color accent;
   final Color border;
+  final Color error;
+  final Brightness brightness;
 
   const ThemePalette({
     required this.primary,
@@ -21,77 +23,57 @@ class ThemePalette {
     required this.textSecondary,
     required this.accent,
     required this.border,
+    required this.error,
+    required this.brightness,
   });
 
-  static const ThemePalette vscode = ThemePalette(
-    primary: Color(0xFF007ACC),
-    background: Color(0xFF1E1E1E),
-    surface: Color(0xFF252526),
-    surfaceVariant: Color(0xFF2D2D2D),
-    textPrimary: Color(0xFFD4D4D4),
-    textSecondary: Color(0xFF9D9D9D),
-    accent: Color(0xFF3794FF),
-    border: Color(0xFF333333),
+  static const ThemePalette light = ThemePalette(
+    primary: Color(0xFF0A84FF),
+    background: Color(0xFFF2F2F7),
+    surface: Color(0xFFFFFFFF),
+    surfaceVariant: Color(0xFFE5E5EA),
+    textPrimary: Color(0xFF000000),
+    textSecondary: Color(0xFF3C3C43),
+    accent: Color(0xFF5E5CE6),
+    border: Color(0xFFC6C6C8),
+    error: Color(0xFFFF3B30),
+    brightness: Brightness.light,
   );
 
-  static const ThemePalette midnight = ThemePalette(
-    primary: Color(0xFF6366F1),
-    background: Color(0xFF020617),
-    surface: Color(0xFF0F172A),
-    surfaceVariant: Color(0xFF1E293B),
-    textPrimary: Color(0xFFF8FAFC),
-    textSecondary: Color(0xFF94A3B8),
-    accent: Color(0xFF818CF8),
-    border: Color(0xFF1E293B),
-  );
-
-  static const ThemePalette solarized = ThemePalette(
-    primary: Color(0xFF268BD2),
-    background: Color(0xFF002B36),
-    surface: Color(0xFF073642),
-    surfaceVariant: Color(0xFF586E75),
-    textPrimary: Color(0xFF839496),
-    textSecondary: Color(0xFF93A1A1),
-    accent: Color(0xFF2AA198),
-    border: Color(0xFF073642),
-  );
-
-  static const ThemePalette cyberpunk = ThemePalette(
-    primary: Color(0xFFF305FF),
-    background: Color(0xFF0D0221),
-    surface: Color(0xFF1B065E),
-    surfaceVariant: Color(0xFF2F0A99),
-    textPrimary: Color(0xFF00FBFF),
-    textSecondary: Color(0xFFFF0055),
-    accent: Color(0xFFFFD300),
-    border: Color(0xFF1B065E),
-  );
-
-  static const ThemePalette apple = ThemePalette(
-    primary: Color(0xFF0A84FF), // iOS Blue
-    background: Color(0xFF000000), // True black
-    surface: Color(0xFF1C1C1E), // Dark gray
-    surfaceVariant: Color(0xFF2C2C2E), // Lighter gray
+  static const ThemePalette dark = ThemePalette(
+    primary: Color(0xFF0A84FF),
+    background: Color(0xFF000000),
+    surface: Color(0xFF1C1C1E),
+    surfaceVariant: Color(0xFF2C2C2E),
     textPrimary: Color(0xFFFFFFFF),
-    textSecondary: Color(0xFFEBEBF5), // iOS secondary text (vibrancy-like)
-    accent: Color(0xFF30D158), // iOS Green
+    textSecondary: Color(0xFF8E8E93),
+    accent: Color(0xFF30D158),
     border: Color(0xFF38383A),
+    error: Color(0xFFFF453A),
+    brightness: Brightness.dark,
   );
 
-  static const ThemePalette originalDark = apple;
+  static const ThemePalette monkey = ThemePalette(
+    primary: Color(0xFF22C55E),
+    background: Color(0xFF0F172A),
+    surface: Color(0xFF020617),
+    surfaceVariant: Color(0xFF1E293B),
+    textPrimary: Color(0xFFE2E8F0),
+    textSecondary: Color(0xFF64748B),
+    accent: Color(0xFF38BDF8),
+    border: Color(0xFF1E293B),
+    error: Color(0xFFEF4444),
+    brightness: Brightness.dark,
+  );
 
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
-      case ThemeType.vscode:
-        return vscode;
-      case ThemeType.midnight:
-        return midnight;
-      case ThemeType.solarized:
-        return solarized;
-      case ThemeType.cyberpunk:
-        return cyberpunk;
+      case ThemeType.light:
+        return light;
       case ThemeType.dark:
-        return apple;
+        return dark;
+      case ThemeType.monkey:
+        return monkey;
     }
   }
 }

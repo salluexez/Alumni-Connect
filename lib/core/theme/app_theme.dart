@@ -8,22 +8,26 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData themeFromPalette(ThemePalette palette) {
+    final isDark = palette.brightness == Brightness.dark;
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: palette.brightness,
       fontFamily: 'Inter',
 
       // ── Color Scheme ───────────────────────────────────
-      colorScheme: ColorScheme.dark(
+      colorScheme: ColorScheme(
+        brightness: palette.brightness,
         primary: palette.primary,
+        onPrimary: isDark ? Colors.white : Colors.white,
         secondary: palette.accent,
-        surface: palette.surface,
-        surfaceContainer: palette.surfaceVariant,
-        error: const Color(0xFFEF4444),
-        onPrimary: Colors.white,
         onSecondary: Colors.white,
+        surface: palette.surface,
         onSurface: palette.textPrimary,
+        error: palette.error,
         onError: Colors.white,
+        surfaceContainer: palette.surfaceVariant,
+        outline: palette.border,
       ),
 
       // ── Scaffold ───────────────────────────────────────
@@ -39,16 +43,17 @@ class AppTheme {
         titleTextStyle: AppTextStyles.h3.copyWith(color: palette.textPrimary),
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarColor: Colors.black,
-          systemNavigationBarIconBrightness: Brightness.light,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: palette.background,
+          systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         ),
       ),
 
       // ── Card ───────────────────────────────────────────
       cardTheme: CardThemeData(
         color: palette.surface,
-        elevation: 0,
+        elevation: 1,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.cardRadius),
           side: BorderSide(color: palette.border, width: 0.5),
@@ -117,13 +122,13 @@ class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          borderSide: const BorderSide(color: Color(0xFFEF4444)),
+          borderSide: BorderSide(color: palette.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+          borderSide: BorderSide(color: palette.error, width: 1.5),
         ),
-        errorStyle: AppTextStyles.bodySmall.copyWith(color: const Color(0xFFEF4444)),
+        errorStyle: AppTextStyles.bodySmall.copyWith(color: palette.error),
       ),
 
       // ── Divider ────────────────────────────────────────
@@ -133,15 +138,6 @@ class AppTheme {
         space: 1,
       ),
 
-      // ── Bottom Navigation ──────────────────────────────
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: palette.surface,
-        selectedItemColor: palette.primary,
-        unselectedItemColor: palette.textSecondary,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-      ),
-      
       // ── Material 3 Navigation Bar ────────────────────────
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: palette.surface,
@@ -162,7 +158,7 @@ class AppTheme {
 
       // ── Chip ───────────────────────────────────────────
       chipTheme: ChipThemeData(
-        backgroundColor: palette.surfaceVariant,
+        backgroundColor: palette.surfaceVariant.withValues(alpha: 0.5),
         selectedColor: palette.primary.withValues(alpha: 0.2),
         labelStyle: AppTextStyles.labelMedium.copyWith(color: palette.textPrimary),
         side: BorderSide(color: palette.border, width: 0.5),
@@ -174,7 +170,7 @@ class AppTheme {
       // ── Dialog ─────────────────────────────────────────
       dialogTheme: DialogThemeData(
         backgroundColor: palette.surface,
-        elevation: 0,
+        elevation: 10,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusLg),
         ),
@@ -213,7 +209,4 @@ class AppTheme {
       ),
     );
   }
-
-  // Keep darkTheme for initial or static fallback if needed, but updated to use one of the palettes
-  static ThemeData get darkTheme => themeFromPalette(ThemePalette.apple);
 }
