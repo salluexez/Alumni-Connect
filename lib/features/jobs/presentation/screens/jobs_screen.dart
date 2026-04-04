@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -16,7 +15,6 @@ import '../../../chat/presentation/cubit/chat_state.dart';
 import '../../../../core/widgets/glass_container.dart';
 import '../../domain/entities/job_entity.dart';
 import '../cubit/jobs_cubit.dart';
-
 import '../cubit/jobs_state.dart';
 
 class PostsScreen extends StatefulWidget {
@@ -42,114 +40,114 @@ class _PostsScreenState extends State<PostsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final userRole = (context.read<AuthBloc>().state as AuthAuthenticated).user.role.name;
     final isAlumni = userRole == 'alumni';
 
     return BlocListener<ChatCubit, ChatState>(
       listener: (context, state) {
         if (state is ChatRoomCreated) {
-          // Navigate to chat
           context.pushNamed('chat', pathParameters: {'chatId': state.roomId});
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: BlocBuilder<JobsCubit, JobsState>(
           builder: (context, state) {
             return CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-              SliverAppBar(
-                expandedHeight: 120,
-                floating: false,
-                pinned: true,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                backgroundColor: AppColors.background,
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: false,
-                  titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 8),
-                  title: Text('Community', style: AppTextStyles.h1),
-                ),
-                actions: [
-                  IconButton(
-                    onPressed: () => _showPostSheet(context, isAlumni),
-                    icon: const Icon(Icons.add_rounded, color: AppColors.primary, size: 28),
+                SliverAppBar(
+                  expandedHeight: 120,
+                  floating: false,
+                  pinned: true,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  backgroundColor: theme.scaffoldBackgroundColor,
+                  flexibleSpace: FlexibleSpaceBar(
+                    centerTitle: false,
+                    titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 8),
+                    title: Text('Community', style: AppTextStyles.h1.copyWith(color: colorScheme.onSurface)),
                   ),
-                  const SizedBox(width: 8),
-                ],
-              ),
-              
-              // ── Filter Bar ─────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
-                  child: Row(
-                    children: [
-                      _FilterButton(
-                        label: 'All Posts',
-                        isSelected: !_referralsOnly,
-                        onTap: () => _toggleFilter(false),
-                      ),
-                      const SizedBox(width: 8),
-                      _FilterButton(
-                        label: 'Referrals',
-                        isSelected: _referralsOnly,
-                        onTap: () => _toggleFilter(true),
-                      ),
-                    ],
+                  actions: [
+                    IconButton(
+                      onPressed: () => _showPostSheet(context, isAlumni),
+                      icon: Icon(Icons.add_rounded, color: colorScheme.primary, size: 28),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
+                    child: Row(
+                      children: [
+                        _FilterButton(
+                          label: 'All Posts',
+                          isSelected: !_referralsOnly,
+                          onTap: () => _toggleFilter(false),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterButton(
+                          label: 'Referrals',
+                          isSelected: _referralsOnly,
+                          onTap: () => _toggleFilter(true),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // ── List body ──────────────────────────────────
-              if (state is JobsLoading || state is JobsInitial)
-                const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                )
-              else if (state is JobsError)
-                SliverFillRemaining(
-                  child: EmptyState(
-                    icon: Icons.error_outline_rounded,
-                    title: 'Sync failed',
-                    subtitle: state.message,
-                    actionLabel: 'Try Again',
-                    onAction: () => context.read<JobsCubit>().loadJobs(referralsOnly: _referralsOnly),
-                  ),
-                )
-              else if (state is JobsLoaded)
-                if (state.jobs.isEmpty)
-                  const SliverFillRemaining(
+                if (state is JobsLoading || state is JobsInitial)
+                  SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator(color: colorScheme.primary, strokeWidth: 2)),
+                  )
+                else if (state is JobsError)
+                  SliverFillRemaining(
                     child: EmptyState(
-                      icon: Icons.feed_rounded,
-                      title: 'Nothing here yet',
-                      subtitle: 'Shared opportunities appear here.',
+                      icon: Icons.error_outline_rounded,
+                      title: 'Sync failed',
+                      subtitle: state.message,
+                      actionLabel: 'Try Again',
+                      onAction: () => context.read<JobsCubit>().loadJobs(referralsOnly: _referralsOnly),
                     ),
                   )
-                else
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(AppSizes.screenPadding, AppSizes.md, AppSizes.screenPadding, 100),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => _PostCard(job: state.jobs[index]),
-                        childCount: state.jobs.length,
+                else if (state is JobsLoaded)
+                  if (state.jobs.isEmpty)
+                    const SliverFillRemaining(
+                      child: EmptyState(
+                        icon: Icons.feed_rounded,
+                        title: 'Nothing here yet',
+                        subtitle: 'Shared opportunities appear here.',
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(AppSizes.screenPadding, AppSizes.md, AppSizes.screenPadding, 100),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _PostCard(job: state.jobs[index]),
+                          childCount: state.jobs.length,
+                        ),
                       ),
                     ),
-                  ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   void _showPostSheet(BuildContext context, bool isAlumni) {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: theme.cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
@@ -179,18 +177,20 @@ class _FilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
+          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(AppSizes.radiusFull),
         ),
         child: Text(
           label,
           style: AppTextStyles.labelMedium.copyWith(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
@@ -226,6 +226,8 @@ class _CreatePostFormState extends State<_CreatePostForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
 
@@ -241,126 +243,123 @@ class _CreatePostFormState extends State<_CreatePostForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          // Handle/Indicator
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: AppSizes.lg),
-          Text('New Post', style: AppTextStyles.h2),
-          const SizedBox(height: AppSizes.xl),
-          
-          Flexible(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomTextField(
-                    label: 'Job Title',
-                    hint: 'e.g. Flutter Developer',
-                    controller: _titleController,
-                  ),
-                  const SizedBox(height: AppSizes.lg),
-                  CustomTextField(
-                    label: 'Company',
-                    hint: 'Company Name',
-                    controller: _companyController,
-                  ),
-                  const SizedBox(height: AppSizes.lg),
-                  CustomTextField(
-                    label: 'Location',
-                    hint: 'Remote / City',
-                    controller: _locationController,
-                  ),
-                  const SizedBox(height: AppSizes.lg),
-                  CustomTextField(
-                    label: 'Description',
-                    hint: 'What is this role about?',
-                    controller: _descController,
-                    maxLines: 4,
-                    keyboardType: TextInputType.multiline,
-                    textInputAction: TextInputAction.newline,
-                  ),
-                  const SizedBox(height: AppSizes.lg),
-                  
-                  // Referral Switch
-                  Container(
-                    padding: const EdgeInsets.all(AppSizes.md),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            const SizedBox(height: AppSizes.lg),
+            Text('New Post', style: AppTextStyles.h2.copyWith(color: colorScheme.onSurface)),
+            const SizedBox(height: AppSizes.xl),
+            
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextField(
+                      label: 'Job Title',
+                      hint: 'e.g. Flutter Developer',
+                      controller: _titleController,
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Available for Referral', style: AppTextStyles.labelLarge),
-                              Text(
-                                'Check this if you can refer candidates directly.',
-                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-                              ),
-                            ],
+                    const SizedBox(height: AppSizes.lg),
+                    CustomTextField(
+                      label: 'Company',
+                      hint: 'Company Name',
+                      controller: _companyController,
+                    ),
+                    const SizedBox(height: AppSizes.lg),
+                    CustomTextField(
+                      label: 'Location',
+                      hint: 'Remote / City',
+                      controller: _locationController,
+                    ),
+                    const SizedBox(height: AppSizes.lg),
+                    CustomTextField(
+                      label: 'Description',
+                      hint: 'What is this role about?',
+                      controller: _descController,
+                      maxLines: 4,
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.newline,
+                    ),
+                    const SizedBox(height: AppSizes.lg),
+                    
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.md),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Available for Referral', style: AppTextStyles.labelLarge.copyWith(color: colorScheme.onSurface)),
+                                Text(
+                                  'Check this if you can refer candidates directly.',
+                                  style: AppTextStyles.bodySmall.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Switch.adaptive(
-                          value: _isReferral,
-                          activeTrackColor: AppColors.primary,
-                          onChanged: (val) {
-                            if (val && !widget.isAlumni) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Only Alumni can post referrals.')),
-                              );
-                              return;
-                            }
-                            setState(() => _isReferral = val);
-                          },
-                        ),
-                      ],
+                          Switch.adaptive(
+                            value: _isReferral,
+                            activeTrackColor: colorScheme.primary,
+                            onChanged: (val) {
+                              if (val && !widget.isAlumni) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Only Alumni can post referrals.')),
+                                );
+                                return;
+                              }
+                              setState(() => _isReferral = val);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSizes.xl),
-                ],
+                    const SizedBox(height: AppSizes.xl),
+                  ],
+                ),
               ),
             ),
-          ),
-          
-          // ── Fixed Bottom Button ──────────────────────────
-          const SizedBox(height: AppSizes.lg),
-          AppButton(
-            label: 'Share Post',
-            onPressed: () {
-              if (_titleController.text.isEmpty) return;
-              final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-              final job = JobEntity(
-                id: DateTime.now().toString(),
-                title: _titleController.text,
-                company: _companyController.text,
-                location: _locationController.text,
-                type: 'Full-time',
-                description: _descController.text,
-                postedByUid: user.uid,
-                postedByName: user.name,
-                postedAt: DateTime.now(),
-                isReferral: _isReferral,
-              );
-              context.read<JobsCubit>().postJob(job);
-              widget.onSuccess();
-            },
-          ),
-        ],
+            
+            const SizedBox(height: AppSizes.lg),
+            AppButton(
+              label: 'Share Post',
+              onPressed: () {
+                if (_titleController.text.isEmpty) return;
+                final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+                final job = JobEntity(
+                  id: DateTime.now().toString(),
+                  title: _titleController.text,
+                  company: _companyController.text,
+                  location: _locationController.text,
+                  type: 'Full-time',
+                  description: _descController.text,
+                  postedByUid: user.uid,
+                  postedByName: user.name,
+                  postedAt: DateTime.now(),
+                  isReferral: _isReferral,
+                );
+                context.read<JobsCubit>().postJob(job);
+                widget.onSuccess();
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _PostCard extends StatelessWidget {
@@ -369,13 +368,14 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GlassContainer(
       margin: const EdgeInsets.only(bottom: AppSizes.md),
       padding: const EdgeInsets.all(AppSizes.lg),
       opacity: 0.1,
       blur: 20,
       border: Border.all(
-        color: AppColors.glassBorder.withValues(alpha: 0.1),
+        color: colorScheme.onSurface.withValues(alpha: 0.1),
         width: 1,
       ),
       child: Column(
@@ -389,10 +389,10 @@ class _PostCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(job.postedByName, style: AppTextStyles.labelMedium),
+                    Text(job.postedByName, style: AppTextStyles.labelMedium.copyWith(color: colorScheme.onSurface)),
                     Text(
                       timeago.format(job.postedAt),
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.caption.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.5)),
                     ),
                   ],
                 ),
@@ -401,27 +401,27 @@ class _PostCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.1),
+                    color: Colors.greenAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppSizes.radiusFull),
                   ),
                   child: Text('Referral', 
-                    style: AppTextStyles.labelSmall.copyWith(color: AppColors.success)),
+                    style: AppTextStyles.labelSmall.copyWith(color: Colors.greenAccent)),
                 ),
             ],
           ),
           const SizedBox(height: AppSizes.lg),
-          Text(job.title, style: AppTextStyles.h3),
+          Text(job.title, style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface)),
           const SizedBox(height: 4),
           Row(
             children: [
-              Text(job.company, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
-              Text(' • ${job.location}', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+              Text(job.company, style: AppTextStyles.bodyMedium.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600)),
+              Text(' • ${job.location}', style: AppTextStyles.bodyMedium.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.6))),
             ],
           ),
           const SizedBox(height: AppSizes.md),
           Text(
             job.description,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
           ),
@@ -472,8 +472,8 @@ class _PostCard extends StatelessWidget {
                       _ActionButton(
                         icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                         label: job.likedByUids.isEmpty ? 'Like' : '${job.likedByUids.length}',
-                        iconColor: isLiked ? Colors.red : AppColors.textSecondary,
-                        textColor: isLiked ? Colors.red : AppColors.textSecondary,
+                        iconColor: isLiked ? Colors.redAccent : colorScheme.onSurface.withValues(alpha: 0.5),
+                        textColor: isLiked ? Colors.redAccent : colorScheme.onSurface.withValues(alpha: 0.5),
                         onTap: () {
                           context.read<JobsCubit>().toggleLike(job.id, authUser.uid);
                         },
@@ -497,7 +497,6 @@ class _PostCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _ActionButton extends StatelessWidget {
@@ -517,13 +516,14 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, size: 20, color: iconColor ?? AppColors.textSecondary),
+          Icon(icon, size: 20, color: iconColor ?? colorScheme.onSurface.withValues(alpha: 0.5)),
           const SizedBox(width: 6),
-          Text(label, style: AppTextStyles.labelMedium.copyWith(color: textColor ?? AppColors.textSecondary)),
+          Text(label, style: AppTextStyles.labelMedium.copyWith(color: textColor ?? colorScheme.onSurface.withValues(alpha: 0.5))),
         ],
       ),
     );
