@@ -43,6 +43,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -52,7 +55,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             child: Text(
               widget.label!,
               style: AppTextStyles.labelMedium.copyWith(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: colorScheme.onSurface.withValues(alpha: 0.8),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -68,10 +71,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
           enabled: widget.enabled,
           onChanged: widget.onChanged,
           maxLines: widget.isPassword ? 1 : widget.maxLines,
-          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
+          style: AppTextStyles.bodyMedium.copyWith(color: colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: widget.hint,
-            hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.4)),
+            hintStyle: AppTextStyles.bodyMedium.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.4)),
             prefixIcon: widget.prefixIcon != null
                 ? Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -82,30 +86,31 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ? IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
                       size: 20,
                     ),
                     onPressed: () => setState(() => _obscureText = !_obscureText),
                   )
                 : widget.suffixIcon,
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: colorScheme.surfaceContainer,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1.2),
+              borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.2), width: 1.2),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-              borderSide: const BorderSide(color: Color(0xFF0A84FF), width: 1.5),
+              borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-              borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+              borderSide: BorderSide(color: colorScheme.error, width: 1.2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+              borderSide: BorderSide(color: colorScheme.error, width: 1.5),
             ),
           ),
         ),

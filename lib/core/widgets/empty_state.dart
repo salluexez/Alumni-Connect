@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_sizes.dart';
 import 'app_button.dart';
@@ -22,6 +21,9 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingXl),
@@ -32,19 +34,19 @@ class EmptyState extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(AppSizes.radiusXl),
               ),
-              child: Icon(icon, size: 36, color: AppColors.textHint),
+              child: Icon(icon, size: 36, color: colorScheme.onSurface.withValues(alpha: 0.3)),
             ),
             const SizedBox(height: AppSizes.lg),
-            Text(title, style: AppTextStyles.h3, textAlign: TextAlign.center),
+            Text(title, style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface), textAlign: TextAlign.center),
             if (subtitle != null) ...[
               const SizedBox(height: AppSizes.sm),
               Text(
                 subtitle!,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -76,14 +78,17 @@ class LoadingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Stack(
       children: [
         child,
         if (isLoading)
           Container(
-            color: AppColors.overlay,
-            child: const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+            color: Colors.black.withValues(alpha: 0.4),
+            child: Center(
+              child: CircularProgressIndicator(color: colorScheme.primary),
             ),
           ),
       ],

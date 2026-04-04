@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
 
 class GlassContainer extends StatelessWidget {
@@ -33,6 +32,9 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       margin: margin,
       width: width,
@@ -56,9 +58,9 @@ class GlassContainer extends StatelessWidget {
             decoration: BoxDecoration(
               shape: shape,
               borderRadius: shape == BoxShape.circle ? null : BorderRadius.circular(borderRadius),
-              color: AppColors.glassBase.withValues(alpha: opacity),
+              color: colorScheme.surface.withValues(alpha: opacity),
               border: border ?? Border.all(
-                color: AppColors.glassBorder.withValues(alpha: 0.2),
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
                 width: 1.5,
               ),
               gradient: gradient,

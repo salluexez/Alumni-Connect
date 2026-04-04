@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
 import '../constants/app_text_styles.dart';
 
@@ -28,6 +27,9 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SizedBox(
       width: isFullWidth ? double.infinity : null,
       height: height ?? AppSizes.buttonHeight,
@@ -35,26 +37,26 @@ class AppButton extends StatelessWidget {
         AppButtonVariant.primary => ElevatedButton(
             onPressed: isLoading ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
               elevation: 4,
-              shadowColor: AppColors.primary.withValues(alpha: 0.3),
+              shadowColor: colorScheme.primary.withValues(alpha: 0.3),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               ),
             ),
-            child: _buildChild(),
+            child: _buildChild(color: colorScheme.onPrimary),
           ),
         AppButtonVariant.secondary => OutlinedButton(
             onPressed: isLoading ? null : onPressed,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.glassBorder),
-              backgroundColor: AppColors.glassBase,
+              side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+              backgroundColor: colorScheme.surfaceContainer,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               ),
             ),
-            child: _buildChild(color: Colors.white),
+            child: _buildChild(color: colorScheme.onSurface),
           ),
         AppButtonVariant.glass => ClipRRect(
             borderRadius: BorderRadius.circular(AppSizes.radiusLg),
@@ -63,40 +65,41 @@ class AppButton extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: isLoading ? null : onPressed,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.glassBase.withValues(alpha: 0.2),
-                  foregroundColor: Colors.white,
+                  backgroundColor: colorScheme.surface.withValues(alpha: 0.1),
+                  foregroundColor: colorScheme.onSurface,
                   elevation: 0,
                   shadowColor: Colors.transparent,
-                  side: const BorderSide(color: AppColors.glassBorder, width: 1.2),
+                  side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.1), width: 1.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppSizes.radiusLg),
                   ),
                 ),
-                child: _buildChild(),
+                child: _buildChild(color: colorScheme.onSurface),
               ),
             ),
           ),
         AppButtonVariant.ghost => TextButton(
             onPressed: isLoading ? null : onPressed,
-            child: _buildChild(color: AppColors.primary),
+            child: _buildChild(color: colorScheme.primary),
           ),
         AppButtonVariant.danger => ElevatedButton(
             onPressed: isLoading ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               ),
             ),
-            child: _buildChild(),
+            child: _buildChild(color: colorScheme.onError),
           ),
       },
     );
   }
 
 
-  Widget _buildChild({Color color = Colors.white}) {
+  Widget _buildChild({required Color color}) {
     if (isLoading) {
       return SizedBox(
         height: 20,
@@ -110,7 +113,14 @@ class AppButton extends StatelessWidget {
     if (icon != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
-        children: [icon!, const SizedBox(width: 8), Text(label, style: AppTextStyles.button.copyWith(color: color))],
+        children: [
+          IconTheme(
+            data: IconThemeData(color: color, size: 20),
+            child: icon!,
+          ),
+          const SizedBox(width: 8),
+          Text(label, style: AppTextStyles.button.copyWith(color: color))
+        ],
       );
     }
     return Text(label, style: AppTextStyles.button.copyWith(color: color));
