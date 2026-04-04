@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/constants/app_text_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -162,37 +161,30 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-
-
 class _MainShell extends StatelessWidget {
   final Widget child;
   const _MainShell({required this.child});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final location = GoRouterState.of(context).uri.path;
     final int selectedIndex = _getIndex(location);
 
     return Scaffold(
-      extendBody: true, // Content should scroll behind blurred nav
+      extendBody: true,
       body: child,
       bottomNavigationBar: ClipRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Container(
-            height: 90, // Increased for safe area
+            height: 90,
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.5),
+              color: colorScheme.surface.withValues(alpha: 0.8),
               border: Border(
-                top: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
-              ),
-              gradient: LinearGradient(
-                colors: [
-                  Colors.white.withValues(alpha: 0.05),
-                  Colors.white.withValues(alpha: 0.00),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                top: BorderSide(
+                    color: colorScheme.onSurface.withValues(alpha: 0.1), width: 0.5),
               ),
             ),
             child: SafeArea(
@@ -236,7 +228,6 @@ class _MainShell extends StatelessWidget {
           ),
         ),
       ),
-
     );
   }
 
@@ -274,17 +265,19 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? AppColors.primary : AppColors.textSecondary;
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.5);
+    
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        width: 60,
+        width: 65,
         height: 60,
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
+          color: isSelected ? colorScheme.primary.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         ),
         child: Column(
@@ -306,5 +299,4 @@ class _NavItem extends StatelessWidget {
       ),
     );
   }
-
 }
