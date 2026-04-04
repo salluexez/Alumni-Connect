@@ -12,9 +12,9 @@ class ThemeState {
   });
 
   factory ThemeState.initial() {
-    return ThemeState(
-      themeType: ThemeType.vscode,
-      palette: ThemePalette.vscode,
+    return const ThemeState(
+      themeType: ThemeType.dark,
+      palette: ThemePalette.dark,
     );
   }
 

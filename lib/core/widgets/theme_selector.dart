@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/theme_config.dart';
 import '../theme/theme_cubit.dart';
+import '../constants/app_text_styles.dart';
 
 class ThemeSelector extends StatelessWidget {
   const ThemeSelector({super.key});
@@ -10,65 +11,92 @@ class ThemeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 100,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: ThemeType.values.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final type = ThemeType.values[index];
-                  final palette = ThemePalette.fromType(type);
-                  final isSelected = state.themeType == type;
+        return SizedBox(
+          height: 110,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: ThemeType.values.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final type = ThemeType.values[index];
+              final palette = ThemePalette.fromType(type);
+              final isSelected = state.themeType == type;
 
-                  return GestureDetector(
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
                     onTap: () => context.read<ThemeCubit>().setTheme(type),
-                    child: Container(
-                      width: 80,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 70,
+                      height: 70,
                       decoration: BoxDecoration(
-                        color: palette.surface,
-                        borderRadius: BorderRadius.circular(12),
+                        color: palette.background,
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isSelected ? palette.primary : palette.border,
-                          width: isSelected ? 2 : 1,
+                          color: isSelected 
+                              ? palette.primary 
+                              : palette.textSecondary.withValues(alpha: 0.2),
+                          width: isSelected ? 3 : 1.5,
                         ),
+                        boxShadow: isSelected ? [
+                          BoxShadow(
+                            color: palette.primary.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ] : [],
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Stack(
                         children: [
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: palette.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: isSelected
-                                ? const Icon(Icons.check,
-                                    size: 20, color: Colors.white)
-                                : null,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _getName(type),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: palette.textPrimary,
-                              fontWeight:
-                                  isSelected ? FontWeight.bold : FontWeight.normal,
+                          Positioned(
+                            top: 10,
+                            left: 10,
+                            child: Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: palette.primary,
+                                shape: BoxShape.circle,
+                              ),
                             ),
                           ),
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            child: Container(
+                              width: 30,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: palette.accent,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                          if (isSelected)
+                            const Center(
+                              child: Icon(Icons.check_circle, 
+                                  color: Colors.white, size: 24),
+                            ),
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _getName(type),
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: isSelected 
+                          ? Theme.of(context).colorScheme.primary 
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         );
       },
     );
@@ -76,16 +104,12 @@ class ThemeSelector extends StatelessWidget {
 
   String _getName(ThemeType type) {
     switch (type) {
-      case ThemeType.vscode:
-        return 'VS Code';
-      case ThemeType.midnight:
-        return 'Midnight';
-      case ThemeType.solarized:
-        return 'Solarized';
-      case ThemeType.cyberpunk:
-        return 'Cyberpunk';
+      case ThemeType.light:
+        return 'Light';
       case ThemeType.dark:
-        return 'Standard';
+        return 'Dark';
+      case ThemeType.monkey:
+        return 'Monkey';
     }
   }
 }
