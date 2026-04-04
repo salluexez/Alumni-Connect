@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -32,17 +31,28 @@ class _MentorshipScreenState extends State<MentorshipScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: BlocConsumer<MentorshipCubit, MentorshipState>(
         listener: (context, state) {
           if (state is MentorshipActionSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: AppColors.success),
+              SnackBar(
+                content: Text(state.message), 
+                backgroundColor: Colors.greenAccent,
+                behavior: SnackBarBehavior.floating,
+              ),
             );
           } else if (state is MentorshipError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
+              SnackBar(
+                content: Text(state.message), 
+                backgroundColor: colorScheme.error,
+                behavior: SnackBarBehavior.floating,
+              ),
             );
           }
         },
@@ -56,17 +66,17 @@ class _MentorshipScreenState extends State<MentorshipScreen> {
                 pinned: true,
                 elevation: 0,
                 scrolledUnderElevation: 0,
-                backgroundColor: AppColors.background,
+                backgroundColor: theme.scaffoldBackgroundColor,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: false,
                   titlePadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: 8),
-                  title: Text('Mentorship', style: AppTextStyles.h1),
+                  title: Text('Mentorship', style: AppTextStyles.h1.copyWith(color: colorScheme.onSurface)),
                 ),
               ),
 
               if (state is MentorshipLoading || state is MentorshipInitial)
-                const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator(color: colorScheme.primary, strokeWidth: 2)),
                 )
               else if (state is MentorshipLoaded)
                 if (state.requests.isEmpty)
@@ -110,19 +120,23 @@ class _MentorshipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final statusColor = switch (request.status) {
-      'pending' => AppColors.warning,
-      'accepted' => AppColors.success,
-      'rejected' => AppColors.error,
-      _ => AppColors.textHint,
+      'pending' => Colors.orangeAccent,
+      'accepted' => Colors.greenAccent,
+      'rejected' => colorScheme.error,
+      _ => colorScheme.onSurface.withValues(alpha: 0.4),
     };
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSizes.md),
       padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +146,7 @@ class _MentorshipCard extends StatelessWidget {
             children: [
               Text(
                 isAlumni ? request.menteeName : 'Request sent',
-                style: AppTextStyles.labelLarge,
+                style: AppTextStyles.labelLarge.copyWith(color: colorScheme.onSurface),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -148,18 +162,18 @@ class _MentorshipCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSizes.md),
-          Text(request.subject, style: AppTextStyles.h4),
+          Text(request.subject, style: AppTextStyles.h4.copyWith(color: colorScheme.onSurface)),
           const SizedBox(height: 4),
           Text(
             request.message,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: AppSizes.lg),
           Text(
             timeago.format(request.createdAt),
-            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.caption.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.4)),
           ),
           
           if (isAlumni && request.status == 'pending') ...[
