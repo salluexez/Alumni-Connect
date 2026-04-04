@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -30,14 +29,21 @@ class _InboxScreenState extends State<InboxScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Messages', style: AppTextStyles.h3),
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text('Messages', style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface)),
       ),
       body: BlocBuilder<ChatCubit, ChatState>(
         builder: (context, state) {
           if (state is ChatLoading || state is ChatInitial) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return Center(child: CircularProgressIndicator(color: colorScheme.primary));
           }
           if (state is ChatError) {
             return EmptyState(
@@ -58,7 +64,11 @@ class _InboxScreenState extends State<InboxScreen> {
             }
             return ListView.separated(
               itemCount: state.rooms.length,
-              separatorBuilder: (context, index) => const Divider(color: AppColors.divider, height: 1),
+              separatorBuilder: (context, index) => Divider(
+                color: colorScheme.outline.withValues(alpha: 0.1),
+                height: 1,
+                indent: AppSizes.screenPadding + 64,
+              ),
               itemBuilder: (context, index) => _ChatRoomTile(room: state.rooms[index]),
             );
           }
@@ -67,8 +77,9 @@ class _InboxScreenState extends State<InboxScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(RouteNames.alumniDirectory),
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.chat_rounded, color: Colors.white),
+        backgroundColor: colorScheme.primary,
+        elevation: 4,
+        child: Icon(Icons.chat_rounded, color: colorScheme.onPrimary),
       ),
     );
   }
@@ -80,6 +91,8 @@ class _ChatRoomTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final currentUserId = (context.read<AuthBloc>().state as AuthAuthenticated).user.uid;
     final otherUserId = room.participantIds.firstWhere((id) => id != currentUserId, orElse: () => '');
     final otherName = room.participantNames[otherUserId] ?? 'User';
@@ -89,12 +102,18 @@ class _ChatRoomTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
       onTap: () => context.push('${RouteNames.chat}/${room.id}'),
-      leading: ProfileAvatar(imageUrl: otherPhoto, size: 48, name: otherName),
-      title: Text(otherName, style: AppTextStyles.h4),
+      leading: ProfileAvatar(imageUrl: otherPhoto, size: 52, name: otherName, showBorder: unreadCount > 0),
+      title: Text(
+        otherName, 
+        style: AppTextStyles.h4.copyWith(
+          color: colorScheme.onSurface,
+          fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
+        ),
+      ),
       subtitle: Text(
         room.lastMessage.isEmpty ? 'Start a conversation' : room.lastMessage,
         style: AppTextStyles.bodyMedium.copyWith(
-          color: unreadCount > 0 ? AppColors.textPrimary : AppColors.textSecondary,
+          color: unreadCount > 0 ? colorScheme.onSurface : colorScheme.onSurface.withValues(alpha: 0.5),
           fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
         ),
         maxLines: 1,
@@ -104,18 +123,25 @@ class _ChatRoomTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(timeago.format(room.lastMessageTime, locale: 'en_short'), style: AppTextStyles.caption.copyWith(color: AppColors.textHint)),
+          Text(
+            timeago.format(room.lastMessageTime, locale: 'en_short'), 
+            style: AppTextStyles.caption.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.4)),
+          ),
           if (unreadCount > 0) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Container(
-              padding: const EdgeInsets.all(6),
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 unreadCount.toString(),
-                style: AppTextStyles.caption.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                style: AppTextStyles.caption.copyWith(
+                  color: colorScheme.onPrimary, 
+                  fontWeight: FontWeight.bold, 
+                  fontSize: 10,
+                ),
               ),
             ),
           ]
