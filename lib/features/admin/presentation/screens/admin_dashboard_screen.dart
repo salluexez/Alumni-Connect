@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -42,9 +42,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         title: Text('Admin Dashboard', style: AppTextStyles.h3),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textSecondary,
-          indicatorColor: AppColors.primary,
+          labelColor: context.colorScheme.primary,
+          unselectedLabelColor: context.theme.textTheme.bodySmall?.color,
+          indicatorColor: context.colorScheme.primary,
           tabs: const [
             Tab(text: 'Overview'),
             Tab(text: 'User Management'),
@@ -67,11 +67,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         listener: (context, state) {
           if (state is AdminActionSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: AppColors.success),
+              SnackBar(content: Text(state.message), backgroundColor: context.appColors.success),
             );
           } else if (state is AdminError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
+              SnackBar(content: Text(state.message), backgroundColor: context.colorScheme.error),
             );
           }
         },
@@ -90,7 +90,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
 
   Widget _buildOverviewTab(AdminState state) {
     if (state is AdminLoading && state is! AdminStatsLoaded) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return Center(child: CircularProgressIndicator(color: context.colorScheme.primary));
     }
     
     AdminDashboardStatsEntity? stats;
@@ -116,7 +116,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   title: 'Total Users',
                   value: stats.totalUsers.toString(),
                   icon: Icons.people_alt_rounded,
-                  color: AppColors.primary,
+                  color: context.colorScheme.primary,
                 ),
               ),
               const SizedBox(width: AppSizes.md),
@@ -125,7 +125,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   title: 'Active Jobs',
                   value: stats.activeJobs.toString(),
                   icon: Icons.work_rounded,
-                  color: AppColors.warning,
+                  color: context.appColors.warning,
                 ),
               ),
             ],
@@ -138,7 +138,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   title: 'Mentorships',
                   value: stats.totalMentorships.toString(),
                   icon: Icons.school_rounded,
-                  color: AppColors.success,
+                  color: context.appColors.success,
                 ),
               ),
               const SizedBox(width: AppSizes.md),
@@ -151,9 +151,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           Container(
             padding: const EdgeInsets.all(AppSizes.paddingLg),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colorScheme.surface,
               borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-              border: Border.all(color: AppColors.border, width: 0.5),
+              border: Border.all(color: context.theme.dividerColor, width: 0.5),
             ),
             child: Column(
               children: stats.usersByRole.entries.map((entry) {
@@ -202,7 +202,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
 
   Widget _buildUsersList(AdminState state) {
     if (state is AdminLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return Center(child: CircularProgressIndicator(color: context.colorScheme.primary));
     }
 
     if (state is AdminUsersLoaded) {
@@ -261,7 +261,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: AppSizes.md),
           Text(value, style: AppTextStyles.h2),
           const SizedBox(height: 4),
-          Text(title, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+          Text(title, style: AppTextStyles.bodyMedium.copyWith(color: context.theme.textTheme.bodySmall?.color)),
         ],
       ),
     );
