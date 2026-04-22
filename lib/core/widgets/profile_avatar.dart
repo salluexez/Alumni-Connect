@@ -31,7 +31,7 @@ class ProfileAvatar extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: showBorder
-              ? Border.all(color: AppColors.primary, width: 2)
+              ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
               : null,
         ),
         child: ClipOval(
@@ -39,18 +39,18 @@ class ProfileAvatar extends StatelessWidget {
               ? CachedNetworkImage(
                   imageUrl: imageUrl!,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => _buildInitialsAvatar(),
-                  errorWidget: (context, url, error) => _buildInitialsAvatar(),
+                  placeholder: (context, url) => _buildInitialsAvatar(context),
+                  errorWidget: (context, url, error) => _buildInitialsAvatar(context),
                 )
-              : _buildInitialsAvatar(),
+              : _buildInitialsAvatar(context),
         ),
       ),
     );
   }
 
-  Widget _buildInitialsAvatar() {
+  Widget _buildInitialsAvatar(BuildContext context) {
     return Container(
-      color: backgroundColor ?? AppColors.primary,
+      color: backgroundColor ?? Theme.of(context).colorScheme.primary,
       alignment: Alignment.center,
       child: Text(
         _getInitials(),
