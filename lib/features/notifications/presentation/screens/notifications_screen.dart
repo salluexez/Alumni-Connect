@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../domain/entities/notification_entity.dart';
@@ -42,7 +42,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: BlocBuilder<NotificationCubit, NotificationState>(
         builder: (context, state) {
           if (state is NotificationLoading || state is NotificationInitial) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return Center(child: CircularProgressIndicator(color: context.colorScheme.primary));
           }
           if (state is NotificationError) {
             return EmptyState(
@@ -63,7 +63,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             }
             return ListView.separated(
               itemCount: state.notifications.length,
-              separatorBuilder: (context, index) => const Divider(color: AppColors.divider, height: 1),
+              separatorBuilder: (context, index) => Divider(color: context.theme.dividerColor, height: 1),
               itemBuilder: (context, index) {
                 final notification = state.notifications[index];
                 return _NotificationTile(notification: notification);
@@ -99,6 +99,31 @@ class _NotificationTileState extends State<_NotificationTile> {
     }
   }
 
+  Future<void> _handleResponse(String action, ConnectionStatus status) async {
+    final cubit = context.read<NotificationCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() {
+      _isResponding = true;
+      _localStatus = action;
+    });
+    try {
+      await cubit.respondToConnectionRequest(
+        widget.notification.relatedId ?? '',
+        widget.notification.id,
+        status,
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => _localStatus = null);
+        messenger.showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isResponding = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     IconData icon;
@@ -107,27 +132,27 @@ class _NotificationTileState extends State<_NotificationTile> {
     switch (widget.notification.type) {
       case 'mentorship':
         icon = Icons.school_rounded;
-        iconColor = AppColors.primary;
+        iconColor = context.colorScheme.primary;
         break;
       case 'chat':
         icon = Icons.chat_bubble_rounded;
-        iconColor = AppColors.success;
+        iconColor = context.appColors.success;
         break;
       case 'job':
         icon = Icons.work_rounded;
-        iconColor = AppColors.warning;
+        iconColor = context.appColors.warning;
         break;
       case 'connection_request':
         icon = Icons.person_add_rounded;
-        iconColor = AppColors.primary;
+        iconColor = context.colorScheme.primary;
         break;
       case 'connection_accepted':
         icon = Icons.handshake_rounded;
-        iconColor = AppColors.success;
+        iconColor = context.appColors.success;
         break;
       default:
         icon = Icons.notifications_rounded;
-        iconColor = AppColors.textHint;
+        iconColor = context.theme.hintColor;
     }
 
     // Using widget.notification.status but falling back to _localStatus for real-time feedback
@@ -135,7 +160,7 @@ class _NotificationTileState extends State<_NotificationTile> {
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding, vertical: AppSizes.sm),
-      tileColor: (widget.notification.isRead || effectiveStatus != null) ? Colors.transparent : AppColors.surfaceVariant.withValues(alpha: 0.5),
+      tileColor: (widget.notification.isRead || effectiveStatus != null) ? Colors.transparent : context.colorScheme.surfaceContainer.withValues(alpha: 0.5),
       onTap: () {
         if (!widget.notification.isRead) {
           context.read<NotificationCubit>().markAsRead(widget.notification.id);
@@ -174,11 +199,11 @@ class _NotificationTileState extends State<_NotificationTile> {
           const SizedBox(height: 4),
           Text(
             widget.notification.body,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(color: context.theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7)),
           ),
           Text(
             timeago.format(widget.notification.createdAt),
-            style: AppTextStyles.caption.copyWith(color: AppColors.textHint),
+            style: AppTextStyles.caption.copyWith(color: context.theme.hintColor),
           ),
           if (widget.notification.type == 'connection_request') ...[
             if (effectiveStatus != null) ...[
@@ -187,13 +212,13 @@ class _NotificationTileState extends State<_NotificationTile> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: (effectiveStatus == 'accepted' 
-                      ? AppColors.success 
-                      : AppColors.error).withValues(alpha: 0.1),
+                      ? context.appColors.success 
+                      : context.colorScheme.error).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppSizes.radiusSm),
                   border: Border.all(
                     color: (effectiveStatus == 'accepted' 
-                        ? AppColors.success 
-                        : AppColors.error).withValues(alpha: 0.3),
+                        ? context.appColors.success 
+                        : context.colorScheme.error).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -202,8 +227,8 @@ class _NotificationTileState extends State<_NotificationTile> {
                       : '✕ Request Declined',
                   style: AppTextStyles.labelMedium.copyWith(
                     color: effectiveStatus == 'accepted' 
-                        ? AppColors.success 
-                        : AppColors.error,
+                        ? context.appColors.success 
+                        : context.colorScheme.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -216,30 +241,7 @@ class _NotificationTileState extends State<_NotificationTile> {
                     child: AppButton(
                       label: 'Decline',
                       isLoading: _isResponding,
-                      onPressed: _isResponding ? null : () async {
-                        final cubit = context.read<NotificationCubit>();
-                        final messenger = ScaffoldMessenger.of(context);
-                        setState(() {
-                          _isResponding = true;
-                          _localStatus = 'rejected';
-                        });
-                        try {
-                          await cubit.respondToConnectionRequest(
-                            widget.notification.relatedId ?? '',
-                            widget.notification.id,
-                            ConnectionStatus.rejected,
-                          );
-                        } catch (e) {
-                          if (mounted) {
-                            setState(() => _localStatus = null);
-                            messenger.showSnackBar(
-                              SnackBar(content: Text('Error: ${e.toString()}')),
-                            );
-                          }
-                        } finally {
-                          if (mounted) setState(() => _isResponding = false);
-                        }
-                      },
+                      onPressed: _isResponding ? null : () => _handleResponse('rejected', ConnectionStatus.rejected),
                       variant: AppButtonVariant.secondary,
                       height: 32,
                     ),
@@ -249,30 +251,7 @@ class _NotificationTileState extends State<_NotificationTile> {
                     child: AppButton(
                       label: 'Accept',
                       isLoading: _isResponding,
-                      onPressed: _isResponding ? null : () async {
-                        final cubit = context.read<NotificationCubit>();
-                        final messenger = ScaffoldMessenger.of(context);
-                        setState(() {
-                          _isResponding = true;
-                          _localStatus = 'accepted';
-                        });
-                        try {
-                          await cubit.respondToConnectionRequest(
-                            widget.notification.relatedId ?? '',
-                            widget.notification.id,
-                            ConnectionStatus.accepted,
-                          );
-                        } catch (e) {
-                          if (mounted) {
-                            setState(() => _localStatus = null);
-                            messenger.showSnackBar(
-                              SnackBar(content: Text('Error: ${e.toString()}')),
-                            );
-                          }
-                        } finally {
-                          if (mounted) setState(() => _isResponding = false);
-                        }
-                      },
+                      onPressed: _isResponding ? null : () => _handleResponse('accepted', ConnectionStatus.accepted),
                       variant: AppButtonVariant.primary,
                       height: 32,
                     ),
@@ -288,8 +267,8 @@ class _NotificationTileState extends State<_NotificationTile> {
           : Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
+              decoration: BoxDecoration(
+                color: context.colorScheme.primary,
                 shape: BoxShape.circle,
               ),
             ),
