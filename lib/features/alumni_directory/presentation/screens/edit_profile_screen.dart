@@ -253,7 +253,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       value: _isAvailableForMentoring,
-                      activeColor: colorScheme.primary,
+                      activeThumbColor: colorScheme.primary,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                       onChanged: (val) {
                         setState(() {

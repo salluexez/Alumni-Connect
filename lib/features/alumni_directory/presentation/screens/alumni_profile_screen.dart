@@ -55,9 +55,11 @@ class _AlumniProfileScreenState extends State<AlumniProfileScreen> {
               onAction: () => context.canPop() ? context.pop() : null,
             );
           }
-          final user = (state is ProfileLoaded)
-              ? state.user
-              : (state is ProfileUpdated) ? (state as ProfileUpdated).user : null;
+          final user = switch (state) {
+            ProfileLoaded s => s.user,
+            ProfileUpdated s => s.user,
+            _ => null,
+          };
           
           if (user == null) return const SizedBox.shrink();
 

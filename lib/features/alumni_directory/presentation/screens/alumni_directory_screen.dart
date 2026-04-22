@@ -37,7 +37,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: BlocBuilder<AlumniCubit, AlumniState>(
         builder: (context, state) {
           return CustomScrollView(
@@ -49,7 +49,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
                 pinned: true,
                 elevation: 0,
                 scrolledUnderElevation: 0,
-                backgroundColor: colorScheme.background,
+                backgroundColor: colorScheme.surface,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: false,
                   titlePadding: const EdgeInsets.symmetric(
