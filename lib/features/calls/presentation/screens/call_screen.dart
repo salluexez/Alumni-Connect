@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../navigation/route_names.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/profile_avatar.dart';
 import '../cubit/call_cubit.dart';
@@ -34,7 +34,7 @@ class CallScreen extends StatelessWidget {
         } else if (state is CallError) {
           return Scaffold(
             body: Center(
-              child: Text(state.message, style: AppTextStyles.bodyLarge.copyWith(color: AppColors.error)),
+              child: Text(state.message, style: AppTextStyles.bodyLarge.copyWith(color: context.colorScheme.error)),
             ),
           );
         }
@@ -51,14 +51,14 @@ class _IncomingCallView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colorScheme.surface,
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+            colors: [context.colorScheme.surfaceContainer, context.colorScheme.surface],
           ),
         ),
         child: Column(
@@ -76,13 +76,13 @@ class _IncomingCallView extends StatelessWidget {
                 children: [
                    _CallActionButton(
                     icon: Icons.close_rounded,
-                    color: AppColors.error,
+                    color: context.colorScheme.error,
                     onPressed: () => context.read<CallCubit>().declineCall(call),
                     label: 'Decline',
                   ),
                   _CallActionButton(
                     icon: Icons.call_rounded,
-                    color: AppColors.success,
+                    color: context.appColors.success,
                     onPressed: () => context.read<CallCubit>().acceptCall(call),
                     label: 'Accept',
                   ),
@@ -104,14 +104,14 @@ class _OutgoingCallView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colorScheme.surface,
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+            colors: [context.colorScheme.surfaceContainer, context.colorScheme.surface],
           ),
         ),
         child: Column(
@@ -124,7 +124,7 @@ class _OutgoingCallView extends StatelessWidget {
             const Spacer(flex: 3),
             _CallActionButton(
               icon: Icons.call_end_rounded,
-              color: AppColors.error,
+              color: context.colorScheme.error,
               onPressed: () => context.read<CallCubit>().endCall(call),
               label: 'End Call',
             ),
@@ -150,14 +150,14 @@ class _ActiveCallView extends StatelessWidget {
   Widget build(BuildContext context) {
     final call = state.call;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colorScheme.surface,
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+            colors: [context.colorScheme.surfaceContainer, context.colorScheme.surface],
           ),
         ),
         child: Column(
@@ -189,7 +189,7 @@ class _ActiveCallView extends StatelessWidget {
                     _CallControlTile(
                       icon: Icons.call_end_rounded,
                       label: 'End',
-                      color: AppColors.error,
+                      color: context.colorScheme.error,
                       onTap: () => context.read<CallCubit>().endCall(call),
                     ),
                     _CallControlTile(
