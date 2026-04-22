@@ -12,6 +12,9 @@ class ThemePalette {
   final Color accent;
   final Color border;
   final Color error;
+  final Color success;
+  final Color warning;
+  final Color info;
   final Brightness brightness;
 
   const ThemePalette({
@@ -24,6 +27,9 @@ class ThemePalette {
     required this.accent,
     required this.border,
     required this.error,
+    required this.success,
+    required this.warning,
+    required this.info,
     required this.brightness,
   });
 
@@ -37,6 +43,9 @@ class ThemePalette {
     accent: Color(0xFF5E5CE6),
     border: Color(0xFFC6C6C8),
     error: Color(0xFFFF3B30),
+    success: Color(0xFF34C759),
+    warning: Color(0xFFFF9500),
+    info: Color(0xFF0A84FF),
     brightness: Brightness.light,
   );
 
@@ -50,6 +59,9 @@ class ThemePalette {
     accent: Color(0xFF30D158),
     border: Color(0xFF38383A),
     error: Color(0xFFFF453A),
+    success: Color(0xFF30D158),
+    warning: Color(0xFFFF9F0A),
+    info: Color(0xFF0A84FF),
     brightness: Brightness.dark,
   );
 
@@ -63,6 +75,9 @@ class ThemePalette {
     accent: Color(0xFF38BDF8),
     border: Color(0xFF1E293B),
     error: Color(0xFFEF4444),
+    success: Color(0xFF22C55E),
+    warning: Color(0xFFF59E0B),
+    info: Color(0xFF38BDF8),
     brightness: Brightness.dark,
   );
 

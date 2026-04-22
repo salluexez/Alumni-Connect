@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'theme_config.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_sizes.dart';
+import 'app_colors_extension.dart';
 
 class AppTheme {
   AppTheme._();
@@ -207,6 +208,19 @@ class AppTheme {
         ),
         behavior: SnackBarBehavior.floating,
       ),
+      extensions: [
+        AppColorsExtension(
+          success: palette.success,
+          warning: palette.warning,
+          info: palette.info,
+        ),
+      ],
     );
   }
+}
+
+extension AppThemeExtension on BuildContext {
+  ThemeData get theme => Theme.of(this);
+  ColorScheme get colorScheme => theme.colorScheme;
+  AppColorsExtension get appColors => theme.extension<AppColorsExtension>()!;
 }
