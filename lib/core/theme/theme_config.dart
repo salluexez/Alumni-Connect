@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical, deepSea, marsh }
 
 class ThemePalette {
   final Color primary;
@@ -337,6 +337,38 @@ class ThemePalette {
     brightness: Brightness.light,
   );
 
+  static const ThemePalette deepSea = ThemePalette(
+    primary: Color(0xFF0077B6),
+    background: Color(0xFF03045E),
+    surface: Color(0xFF023E8A),
+    surfaceVariant: Color(0xFF0096C7),
+    textPrimary: Color(0xFFCAF0F8),
+    textSecondary: Color(0xFF90E0EF),
+    accent: Color(0xFF48CAE4),
+    border: Color(0xFF0096C7),
+    error: Color(0xFFD00000),
+    success: Color(0xFF40916C),
+    warning: Color(0xFFFFB703),
+    info: Color(0xFF00B4D8),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette marsh = ThemePalette(
+    primary: Color(0xFF6B705C),
+    background: Color(0xFFCB997E),
+    surface: Color(0xFFDDBEA9),
+    surfaceVariant: Color(0xFFFFE8D6),
+    textPrimary: Color(0xFF3F4238),
+    textSecondary: Color(0xFF6B705C),
+    accent: Color(0xFFA5A58D),
+    border: Color(0xFFFFE8D6),
+    error: Color(0xFF9B2226),
+    success: Color(0xFF2D6A4F),
+    warning: Color(0xFFF9A825),
+    info: Color(0xFF457B9D),
+    brightness: Brightness.light,
+  );
+
   static const ThemePalette nautical = ThemePalette(
     primary: Color(0xFF003049),
     background: Color(0xFFFDF0D5),
@@ -431,6 +463,10 @@ class ThemePalette {
         return retro;
       case ThemeType.nautical:
         return nautical;
+      case ThemeType.deepSea:
+        return deepSea;
+      case ThemeType.marsh:
+        return marsh;
     }
   }
 }
