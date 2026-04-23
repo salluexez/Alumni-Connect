@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika }
 
 class ThemePalette {
   final Color primary;
@@ -305,6 +305,38 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette carbon = ThemePalette(
+    primary: Color(0xFFF2F2F2),
+    background: Color(0xFF2B2B2B),
+    surface: Color(0xFF333333),
+    surfaceVariant: Color(0xFF3D3D3D),
+    textPrimary: Color(0xFFF2F2F2),
+    textSecondary: Color(0xFF919191),
+    accent: Color(0xFF616161),
+    border: Color(0xFF3D3D3D),
+    error: Color(0xFFB00020),
+    success: Color(0xFF00C853),
+    warning: Color(0xFFFFAB00),
+    info: Color(0xFF2979FF),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette serika = ThemePalette(
+    primary: Color(0xFFE2B714),
+    background: Color(0xFF323437),
+    surface: Color(0xFF2C2E31),
+    surfaceVariant: Color(0xFF3E4144),
+    textPrimary: Color(0xFFD1D0C5),
+    textSecondary: Color(0xFF646669),
+    accent: Color(0xFFE2B714),
+    border: Color(0xFF3E4144),
+    error: Color(0xFFCA4754),
+    success: Color(0xFF79A617),
+    warning: Color(0xFFD1B000),
+    info: Color(0xFF1793D1),
+    brightness: Brightness.dark,
+  );
+
   static const ThemePalette tokyoNight = ThemePalette(
     primary: Color(0xFF7AA2F7),
     background: Color(0xFF1A1B26),
@@ -359,6 +391,10 @@ class ThemePalette {
         return amoled;
       case ThemeType.tokyoNight:
         return tokyoNight;
+      case ThemeType.carbon:
+        return carbon;
+      case ThemeType.serika:
+        return serika;
     }
   }
 }
