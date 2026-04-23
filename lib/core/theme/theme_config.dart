@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical }
 
 class ThemePalette {
   final Color primary;
@@ -321,6 +321,38 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette retro = ThemePalette(
+    primary: Color(0xFFD4A373),
+    background: Color(0xFFFAEDCD),
+    surface: Color(0xFFFEFAE0),
+    surfaceVariant: Color(0xFFE9EDC9),
+    textPrimary: Color(0xFF606C38),
+    textSecondary: Color(0xFF283618),
+    accent: Color(0xFFBC6C25),
+    border: Color(0xFFE9EDC9),
+    error: Color(0xFFD62828),
+    success: Color(0xFF386641),
+    warning: Color(0xFFF77F00),
+    info: Color(0xFF003049),
+    brightness: Brightness.light,
+  );
+
+  static const ThemePalette nautical = ThemePalette(
+    primary: Color(0xFF003049),
+    background: Color(0xFFFDF0D5),
+    surface: Color(0xFFFFFFFF),
+    surfaceVariant: Color(0xFFC1121F),
+    textPrimary: Color(0xFF003049),
+    textSecondary: Color(0xFF669BBC),
+    accent: Color(0xFFC1121F),
+    border: Color(0xFFFDF0D5),
+    error: Color(0xFF780000),
+    success: Color(0xFF386641),
+    warning: Color(0xFFF77F00),
+    info: Color(0xFF669BBC),
+    brightness: Brightness.light,
+  );
+
   static const ThemePalette serika = ThemePalette(
     primary: Color(0xFFE2B714),
     background: Color(0xFF323437),
@@ -395,6 +427,10 @@ class ThemePalette {
         return carbon;
       case ThemeType.serika:
         return serika;
+      case ThemeType.retro:
+        return retro;
+      case ThemeType.nautical:
+        return nautical;
     }
   }
 }
