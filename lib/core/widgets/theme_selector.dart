@@ -75,9 +75,9 @@ class ThemeSelector extends StatelessWidget {
                             ),
                           ),
                           if (isSelected)
-                            const Center(
+                            Center(
                               child: Icon(Icons.check_circle, 
-                                  color: Colors.white, size: 24),
+                                  color: palette.primary, size: 24),
                             ),
                         ],
                       ),
