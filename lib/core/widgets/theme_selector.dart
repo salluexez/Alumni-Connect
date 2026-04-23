@@ -124,6 +124,12 @@ class ThemeSelector extends StatelessWidget {
         return 'Ocean';
       case ThemeType.espresso:
         return 'Espresso';
+      case ThemeType.sunset:
+        return 'Sunset';
+      case ThemeType.forest:
+        return 'Forest';
+      case ThemeType.lavender:
+        return 'Lavender';
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender }
 
 class ThemePalette {
   final Color primary;
@@ -193,6 +193,54 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette sunset = ThemePalette(
+    primary: Color(0xFFFF7E5F),
+    background: Color(0xFF1A1C2C),
+    surface: Color(0xFF292B3D),
+    surfaceVariant: Color(0xFF3D3F5C),
+    textPrimary: Color(0xFFF4F4F4),
+    textSecondary: Color(0xFF9495A5),
+    accent: Color(0xFFFEB47B),
+    border: Color(0xFF3D3F5C),
+    error: Color(0xFFFF4D4D),
+    success: Color(0xFF50C878),
+    warning: Color(0xFFFFD700),
+    info: Color(0xFF6495ED),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette forest = ThemePalette(
+    primary: Color(0xFF4B6F44),
+    background: Color(0xFF1B261A),
+    surface: Color(0xFF243023),
+    surfaceVariant: Color(0xFF324031),
+    textPrimary: Color(0xFFE0E0E0),
+    textSecondary: Color(0xFF8FA18E),
+    accent: Color(0xFF98FB98),
+    border: Color(0xFF324031),
+    error: Color(0xFFB22222),
+    success: Color(0xFF7FFF00),
+    warning: Color(0xFFDAA520),
+    info: Color(0xFF8FBC8F),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette lavender = ThemePalette(
+    primary: Color(0xFFB19CD9),
+    background: Color(0xFF2E2B3D),
+    surface: Color(0xFF3C394F),
+    surfaceVariant: Color(0xFF4D4966),
+    textPrimary: Color(0xFFF0F0F5),
+    textSecondary: Color(0xFFA6A3C2),
+    accent: Color(0xFFE6E6FA),
+    border: Color(0xFF4D4966),
+    error: Color(0xFFFF6961),
+    success: Color(0xFF77DD77),
+    warning: Color(0xFFFDFD96),
+    info: Color(0xFFAEC6CF),
+    brightness: Brightness.dark,
+  );
+
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
       case ThemeType.light:
@@ -215,6 +263,12 @@ class ThemePalette {
         return ocean;
       case ThemeType.espresso:
         return espresso;
+      case ThemeType.sunset:
+        return sunset;
+      case ThemeType.forest:
+        return forest;
+      case ThemeType.lavender:
+        return lavender;
     }
   }
 }
