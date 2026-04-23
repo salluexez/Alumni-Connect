@@ -120,6 +120,10 @@ class ThemeSelector extends StatelessWidget {
         return 'Midnight';
       case ThemeType.cyberpunk:
         return 'Cyberpunk';
+      case ThemeType.ocean:
+        return 'Ocean';
+      case ThemeType.espresso:
+        return 'Espresso';
     }
   }
 }

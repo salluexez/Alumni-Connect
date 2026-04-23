@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso }
 
 class ThemePalette {
   final Color primary;
@@ -146,18 +146,50 @@ class ThemePalette {
   );
 
   static const ThemePalette cyberpunk = ThemePalette(
-    primary: Color(0xFFFDEE00),
-    background: Color(0xFF000000),
-    surface: Color(0xFF1A1A1A),
-    surfaceVariant: Color(0xFF2D2D2D),
-    textPrimary: Color(0xFFFFFFFF),
-    textSecondary: Color(0xFF888888),
-    accent: Color(0xFFFF00FF),
-    border: Color(0xFF2D2D2D),
-    error: Color(0xFFFF0000),
-    success: Color(0xFF00FF00),
-    warning: Color(0xFFFF6600),
-    info: Color(0xFF00FFFF),
+    primary: Color(0xFFFF00FF),
+    background: Color(0xFF120458),
+    surface: Color(0xFF1A096D),
+    surfaceVariant: Color(0xFF241082),
+    textPrimary: Color(0xFFF1F1F1),
+    textSecondary: Color(0xFFE000FF),
+    accent: Color(0xFF00FFFF),
+    border: Color(0xFF241082),
+    error: Color(0xFFFF0055),
+    success: Color(0xFF00FF9F),
+    warning: Color(0xFFFAE100),
+    info: Color(0xFF00B8FF),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette ocean = ThemePalette(
+    primary: Color(0xFF0EA5E9),
+    background: Color(0xFF0F172A),
+    surface: Color(0xFF1E293B),
+    surfaceVariant: Color(0xFF334155),
+    textPrimary: Color(0xFFF8FAFC),
+    textSecondary: Color(0xFF94A3B8),
+    accent: Color(0xFF2DD4BF),
+    border: Color(0xFF334155),
+    error: Color(0xFFEF4444),
+    success: Color(0xFF10B981),
+    warning: Color(0xFFF59E0B),
+    info: Color(0xFF38BDF8),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette espresso = ThemePalette(
+    primary: Color(0xFFD2B48C),
+    background: Color(0xFF2C2420),
+    surface: Color(0xFF3D322C),
+    surfaceVariant: Color(0xFF4E4039),
+    textPrimary: Color(0xFFF5F5F5),
+    textSecondary: Color(0xFFA09088),
+    accent: Color(0xFF8B4513),
+    border: Color(0xFF4E4039),
+    error: Color(0xFFFF6347),
+    success: Color(0xFF90EE90),
+    warning: Color(0xFFFFA500),
+    info: Color(0xFF87CEEB),
     brightness: Brightness.dark,
   );
 
@@ -179,6 +211,10 @@ class ThemePalette {
         return midnight;
       case ThemeType.cyberpunk:
         return cyberpunk;
+      case ThemeType.ocean:
+        return ocean;
+      case ThemeType.espresso:
+        return espresso;
     }
   }
 }
