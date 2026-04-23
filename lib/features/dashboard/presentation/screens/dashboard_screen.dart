@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_container.dart';
 import '../../../../core/widgets/profile_avatar.dart';
 import '../../../auth/domain/entities/user_entity.dart';
@@ -169,13 +170,13 @@ class _DashboardBody extends StatelessWidget {
                         label: 'Mentors',
                         value: '${stats['mentors'] ?? 0}',
                         icon: Icons.school_rounded,
-                        color: Colors.greenAccent,
+                        color: context.appColors.success,
                       ),
                       _StatItem(
                         label: 'Postings',
                         value: '${stats['jobs'] ?? 0}',
                         icon: Icons.work_rounded,
-                        color: Colors.orangeAccent,
+                        color: context.appColors.warning,
                       ),
                     ],
                   ),
@@ -203,7 +204,7 @@ class _DashboardBody extends StatelessWidget {
                     _ActionTile(
                       label: 'Job Board',
                       icon: Icons.business_center_rounded,
-                      color: Colors.greenAccent,
+                      color: context.appColors.success,
                       onTap: () => context.go(RouteNames.posts),
                     ),
                     _ActionTile(
@@ -215,7 +216,7 @@ class _DashboardBody extends StatelessWidget {
                     _ActionTile(
                       label: 'Messages',
                       icon: Icons.chat_bubble_rounded,
-                      color: Colors.orangeAccent,
+                      color: context.appColors.warning,
                       onTap: () => context.go(RouteNames.inbox),
                     ),
                   ],
@@ -271,10 +272,11 @@ class _DashboardBody extends StatelessWidget {
 
   Color _getActivityColor(BuildContext context, String type) {
     final colorScheme = Theme.of(context).colorScheme;
+    final appColors = context.appColors;
     return switch (type) {
       'connection' => colorScheme.primary,
-      'mentorship' => Colors.greenAccent,
-      'job' => Colors.orangeAccent,
+      'mentorship' => appColors.success,
+      'job' => appColors.warning,
       _ => colorScheme.onSurface.withValues(alpha: 0.4),
     };
   }
