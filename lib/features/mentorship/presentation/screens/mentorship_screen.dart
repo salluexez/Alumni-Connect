@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -42,7 +43,7 @@ class _MentorshipScreenState extends State<MentorshipScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message), 
-                backgroundColor: Colors.greenAccent,
+                backgroundColor: context.appColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -124,8 +125,8 @@ class _MentorshipCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final statusColor = switch (request.status) {
-      'pending' => Colors.orangeAccent,
-      'accepted' => Colors.greenAccent,
+      'pending' => context.appColors.warning,
+      'accepted' => context.appColors.success,
       'rejected' => colorScheme.error,
       _ => colorScheme.onSurface.withValues(alpha: 0.4),
     };
