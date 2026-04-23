@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical, deepSea, marsh }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical, deepSea, marsh, neon, gruvbox }
 
 class ThemePalette {
   final Color primary;
@@ -417,6 +417,38 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette neon = ThemePalette(
+    primary: Color(0xFF00FF00),
+    background: Color(0xFF000000),
+    surface: Color(0xFF111111),
+    surfaceVariant: Color(0xFF222222),
+    textPrimary: Color(0xFF00FF00),
+    textSecondary: Color(0xFFFF00FF),
+    accent: Color(0xFF00FFFF),
+    border: Color(0xFF222222),
+    error: Color(0xFFFF0000),
+    success: Color(0xFF00FF00),
+    warning: Color(0xFFFFFF00),
+    info: Color(0xFF00FFFF),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette gruvbox = ThemePalette(
+    primary: Color(0xFFFABD2F),
+    background: Color(0xFF282828),
+    surface: Color(0xFF3C3836),
+    surfaceVariant: Color(0xFF504945),
+    textPrimary: Color(0xFFEBDBB2),
+    textSecondary: Color(0xFFA89984),
+    accent: Color(0xFF8EC07C),
+    border: Color(0xFF504945),
+    error: Color(0xFFFB4934),
+    success: Color(0xFFB8BB26),
+    warning: Color(0xFFFABD2F),
+    info: Color(0xFF83A598),
+    brightness: Brightness.dark,
+  );
+
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
       case ThemeType.light:
@@ -467,6 +499,10 @@ class ThemePalette {
         return deepSea;
       case ThemeType.marsh:
         return marsh;
+      case ThemeType.neon:
+        return neon;
+      case ThemeType.gruvbox:
+        return gruvbox;
     }
   }
 }
