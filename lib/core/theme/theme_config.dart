@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura }
 
 class ThemePalette {
   final Color primary;
@@ -241,6 +241,54 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette rosePine = ThemePalette(
+    primary: Color(0xFFEBBCBA),
+    background: Color(0xFF191724),
+    surface: Color(0xFF1F1D2E),
+    surfaceVariant: Color(0xFF26233A),
+    textPrimary: Color(0xFFE0DEF4),
+    textSecondary: Color(0xFF908CAA),
+    accent: Color(0xFFEB6F92),
+    border: Color(0xFF26233A),
+    error: Color(0xFFEB6F92),
+    success: Color(0xFF31748F),
+    warning: Color(0xFFF6C177),
+    info: Color(0xFF9CCFD8),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette matrix = ThemePalette(
+    primary: Color(0xFF00FF41),
+    background: Color(0xFF000000),
+    surface: Color(0xFF0D0D0D),
+    surfaceVariant: Color(0xFF1A1A1A),
+    textPrimary: Color(0xFF00FF41),
+    textSecondary: Color(0xFF008F11),
+    accent: Color(0xFF008F11),
+    border: Color(0xFF1A1A1A),
+    error: Color(0xFFFF0000),
+    success: Color(0xFF00FF41),
+    warning: Color(0xFFADFF2F),
+    info: Color(0xFF00FF41),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette sakura = ThemePalette(
+    primary: Color(0xFFFFB7C5),
+    background: Color(0xFFFFF5F7),
+    surface: Color(0xFFFFFFFF),
+    surfaceVariant: Color(0xFFFEE1E8),
+    textPrimary: Color(0xFF5D576B),
+    textSecondary: Color(0xFF9D95B0),
+    accent: Color(0xFFF28482),
+    border: Color(0xFFFEE1E8),
+    error: Color(0xFFF28482),
+    success: Color(0xFF84A59D),
+    warning: Color(0xFFF6BD60),
+    info: Color(0xFFF5CAC3),
+    brightness: Brightness.light,
+  );
+
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
       case ThemeType.light:
@@ -269,6 +317,12 @@ class ThemePalette {
         return forest;
       case ThemeType.lavender:
         return lavender;
+      case ThemeType.rosePine:
+        return rosePine;
+      case ThemeType.matrix:
+        return matrix;
+      case ThemeType.sakura:
+        return sakura;
     }
   }
 }

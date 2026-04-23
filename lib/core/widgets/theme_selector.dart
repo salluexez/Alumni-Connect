@@ -130,6 +130,12 @@ class ThemeSelector extends StatelessWidget {
         return 'Forest';
       case ThemeType.lavender:
         return 'Lavender';
+      case ThemeType.rosePine:
+        return 'Rose Pine';
+      case ThemeType.matrix:
+        return 'Matrix';
+      case ThemeType.sakura:
+        return 'Sakura';
     }
   }
 }
