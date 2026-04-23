@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight }
 
 class ThemePalette {
   final Color primary;
@@ -289,6 +289,38 @@ class ThemePalette {
     brightness: Brightness.light,
   );
 
+  static const ThemePalette amoled = ThemePalette(
+    primary: Color(0xFF007AFF),
+    background: Color(0xFF000000),
+    surface: Color(0xFF000000),
+    surfaceVariant: Color(0xFF121212),
+    textPrimary: Color(0xFFFFFFFF),
+    textSecondary: Color(0xFF8E8E93),
+    accent: Color(0xFF32D74B),
+    border: Color(0xFF1C1C1E),
+    error: Color(0xFFFF453A),
+    success: Color(0xFF32D74B),
+    warning: Color(0xFFFF9F0A),
+    info: Color(0xFF64D2FF),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette tokyoNight = ThemePalette(
+    primary: Color(0xFF7AA2F7),
+    background: Color(0xFF1A1B26),
+    surface: Color(0xFF24283B),
+    surfaceVariant: Color(0xFF414868),
+    textPrimary: Color(0xFFC0CAF5),
+    textSecondary: Color(0xFF9ECE6A),
+    accent: Color(0xFFBB9AF7),
+    border: Color(0xFF414868),
+    error: Color(0xFFF7768E),
+    success: Color(0xFF9ECE6A),
+    warning: Color(0xFFE0AF68),
+    info: Color(0xFF7DCFFF),
+    brightness: Brightness.dark,
+  );
+
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
       case ThemeType.light:
@@ -323,6 +355,10 @@ class ThemePalette {
         return matrix;
       case ThemeType.sakura:
         return sakura;
+      case ThemeType.amoled:
+        return amoled;
+      case ThemeType.tokyoNight:
+        return tokyoNight;
     }
   }
 }
