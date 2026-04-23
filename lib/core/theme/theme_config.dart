@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical, deepSea, marsh, neon, gruvbox }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical, deepSea, marsh, neon, gruvbox, oneDark, monokai }
 
 class ThemePalette {
   final Color primary;
@@ -449,6 +449,38 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette oneDark = ThemePalette(
+    primary: Color(0xFF61AFEF),
+    background: Color(0xFF282C34),
+    surface: Color(0xFF21252B),
+    surfaceVariant: Color(0xFF3E4451),
+    textPrimary: Color(0xFFABB2BF),
+    textSecondary: Color(0xFF5C6370),
+    accent: Color(0xFFC678DD),
+    border: Color(0xFF3E4451),
+    error: Color(0xFFE06C75),
+    success: Color(0xFF98C379),
+    warning: Color(0xFFD19A66),
+    info: Color(0xFF56B6C2),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette monokai = ThemePalette(
+    primary: Color(0xFFF92672),
+    background: Color(0xFF272822),
+    surface: Color(0xFF1E1E1E),
+    surfaceVariant: Color(0xFF3E3D32),
+    textPrimary: Color(0xFFF8F8F2),
+    textSecondary: Color(0xFF75715E),
+    accent: Color(0xFFAE81FF),
+    border: Color(0xFF3E3D32),
+    error: Color(0xFFF92672),
+    success: Color(0xFFA6E22E),
+    warning: Color(0xFFFD971F),
+    info: Color(0xFF66D9EF),
+    brightness: Brightness.dark,
+  );
+
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
       case ThemeType.light:
@@ -503,6 +535,10 @@ class ThemePalette {
         return neon;
       case ThemeType.gruvbox:
         return gruvbox;
+      case ThemeType.oneDark:
+        return oneDark;
+      case ThemeType.monokai:
+        return monokai;
     }
   }
 }
