@@ -110,6 +110,16 @@ class ThemeSelector extends StatelessWidget {
         return 'Dark';
       case ThemeType.monkey:
         return 'Monkey';
+      case ThemeType.dracula:
+        return 'Dracula';
+      case ThemeType.nord:
+        return 'Nord';
+      case ThemeType.solarizedDark:
+        return 'Solarized';
+      case ThemeType.midnight:
+        return 'Midnight';
+      case ThemeType.cyberpunk:
+        return 'Cyberpunk';
     }
   }
 }
