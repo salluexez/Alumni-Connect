@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical, deepSea, marsh, neon, gruvbox, oneDark, monokai }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk, ocean, espresso, sunset, forest, lavender, rosePine, matrix, sakura, amoled, tokyoNight, carbon, serika, retro, nautical, deepSea, marsh, neon, gruvbox, oneDark, monokai, catppuccin, everforest }
 
 class ThemePalette {
   final Color primary;
@@ -481,6 +481,38 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette catppuccin = ThemePalette(
+    primary: Color(0xFFCBA6F7),
+    background: Color(0xFF1E1E2E),
+    surface: Color(0xFF181825),
+    surfaceVariant: Color(0xFF313244),
+    textPrimary: Color(0xFFCDD6F4),
+    textSecondary: Color(0xFFBAC2DE),
+    accent: Color(0xFFF5C2E7),
+    border: Color(0xFF313244),
+    error: Color(0xFFF38BA8),
+    success: Color(0xFFA6E3A1),
+    warning: Color(0xFFF9E2AF),
+    info: Color(0xFF89B4FA),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette everforest = ThemePalette(
+    primary: Color(0xFFA7C080),
+    background: Color(0xFF2B3339),
+    surface: Color(0xFF323C41),
+    surfaceVariant: Color(0xFF3A454A),
+    textPrimary: Color(0xFFD3C6AA),
+    textSecondary: Color(0xFF9DA9A0),
+    accent: Color(0xFFDBBC7F),
+    border: Color(0xFF3A454A),
+    error: Color(0xFFE67E80),
+    success: Color(0xFFA7C080),
+    warning: Color(0xFFDBBC7F),
+    info: Color(0xFF7FBBB3),
+    brightness: Brightness.dark,
+  );
+
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
       case ThemeType.light:
@@ -539,6 +571,10 @@ class ThemePalette {
         return oneDark;
       case ThemeType.monokai:
         return monokai;
+      case ThemeType.catppuccin:
+        return catppuccin;
+      case ThemeType.everforest:
+        return everforest;
     }
   }
 }
