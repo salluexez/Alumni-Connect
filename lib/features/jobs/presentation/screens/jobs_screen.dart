@@ -10,6 +10,7 @@ import '../../../../core/widgets/profile_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../chat/presentation/cubit/chat_state.dart';
 import '../../../../core/widgets/glass_container.dart';
@@ -401,11 +402,11 @@ class _PostCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.greenAccent.withValues(alpha: 0.1),
+                    color: context.appColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppSizes.radiusFull),
                   ),
                   child: Text('Referral', 
-                    style: AppTextStyles.labelSmall.copyWith(color: Colors.greenAccent)),
+                    style: AppTextStyles.labelSmall.copyWith(color: context.appColors.success)),
                 ),
             ],
           ),
@@ -472,8 +473,8 @@ class _PostCard extends StatelessWidget {
                       _ActionButton(
                         icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                         label: job.likedByUids.isEmpty ? 'Like' : '${job.likedByUids.length}',
-                        iconColor: isLiked ? Colors.redAccent : colorScheme.onSurface.withValues(alpha: 0.5),
-                        textColor: isLiked ? Colors.redAccent : colorScheme.onSurface.withValues(alpha: 0.5),
+                        iconColor: isLiked ? colorScheme.error : colorScheme.onSurface.withValues(alpha: 0.5),
+                        textColor: isLiked ? colorScheme.error : colorScheme.onSurface.withValues(alpha: 0.5),
                         onTap: () {
                           context.read<JobsCubit>().toggleLike(job.id, authUser.uid);
                         },
