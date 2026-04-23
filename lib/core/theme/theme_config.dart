@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, dark, monkey }
+enum ThemeType { light, dark, monkey, dracula, nord, solarizedDark, midnight, cyberpunk }
 
 class ThemePalette {
   final Color primary;
@@ -81,6 +81,86 @@ class ThemePalette {
     brightness: Brightness.dark,
   );
 
+  static const ThemePalette dracula = ThemePalette(
+    primary: Color(0xFFBD93F9),
+    background: Color(0xFF282A36),
+    surface: Color(0xFF1E1F29),
+    surfaceVariant: Color(0xFF44475A),
+    textPrimary: Color(0xFFF8F8F2),
+    textSecondary: Color(0xFF6272A4),
+    accent: Color(0xFFFF79C6),
+    border: Color(0xFF44475A),
+    error: Color(0xFFFF5555),
+    success: Color(0xFF50FA7B),
+    warning: Color(0xFFFFB86C),
+    info: Color(0xFF8BE9FD),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette nord = ThemePalette(
+    primary: Color(0xFF88C0D0),
+    background: Color(0xFF2E3440),
+    surface: Color(0xFF3B4252),
+    surfaceVariant: Color(0xFF434C5E),
+    textPrimary: Color(0xFFD8DEE9),
+    textSecondary: Color(0xFF81A1C1),
+    accent: Color(0xFF8FBCBB),
+    border: Color(0xFF434C5E),
+    error: Color(0xFFBF616A),
+    success: Color(0xFFA3BE8C),
+    warning: Color(0xFFEBCB8B),
+    info: Color(0xFF81A1C1),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette solarizedDark = ThemePalette(
+    primary: Color(0xFF268BD2),
+    background: Color(0xFF002B36),
+    surface: Color(0xFF073642),
+    surfaceVariant: Color(0xFF586E75),
+    textPrimary: Color(0xFF839496),
+    textSecondary: Color(0xFF93A1A1),
+    accent: Color(0xFF859900),
+    border: Color(0xFF073642),
+    error: Color(0xFFDC322F),
+    success: Color(0xFF2AA198),
+    warning: Color(0xFFB58900),
+    info: Color(0xFF268BD2),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette midnight = ThemePalette(
+    primary: Color(0xFFBB86FC),
+    background: Color(0xFF000000),
+    surface: Color(0xFF121212),
+    surfaceVariant: Color(0xFF1F1F1F),
+    textPrimary: Color(0xFFFFFFFF),
+    textSecondary: Color(0xFFB0B0B0),
+    accent: Color(0xFF03DAC6),
+    border: Color(0xFF1F1F1F),
+    error: Color(0xFFCF6679),
+    success: Color(0xFF4CAF50),
+    warning: Color(0xFFFFC107),
+    info: Color(0xFF2196F3),
+    brightness: Brightness.dark,
+  );
+
+  static const ThemePalette cyberpunk = ThemePalette(
+    primary: Color(0xFFFDEE00),
+    background: Color(0xFF000000),
+    surface: Color(0xFF1A1A1A),
+    surfaceVariant: Color(0xFF2D2D2D),
+    textPrimary: Color(0xFFFFFFFF),
+    textSecondary: Color(0xFF888888),
+    accent: Color(0xFFFF00FF),
+    border: Color(0xFF2D2D2D),
+    error: Color(0xFFFF0000),
+    success: Color(0xFF00FF00),
+    warning: Color(0xFFFF6600),
+    info: Color(0xFF00FFFF),
+    brightness: Brightness.dark,
+  );
+
   static ThemePalette fromType(ThemeType type) {
     switch (type) {
       case ThemeType.light:
@@ -89,6 +169,16 @@ class ThemePalette {
         return dark;
       case ThemeType.monkey:
         return monkey;
+      case ThemeType.dracula:
+        return dracula;
+      case ThemeType.nord:
+        return nord;
+      case ThemeType.solarizedDark:
+        return solarizedDark;
+      case ThemeType.midnight:
+        return midnight;
+      case ThemeType.cyberpunk:
+        return cyberpunk;
     }
   }
 }
