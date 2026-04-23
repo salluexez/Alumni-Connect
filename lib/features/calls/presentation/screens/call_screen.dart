@@ -66,8 +66,8 @@ class _IncomingCallView extends StatelessWidget {
             const Spacer(flex: 2),
             ProfileAvatar(imageUrl: call.callerPhoto, size: 120, name: call.callerName),
             const SizedBox(height: AppSizes.xl),
-            Text(call.callerName, style: AppTextStyles.h1.copyWith(color: Colors.white)),
-            Text('Incoming Voice Call', style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70)),
+            Text(call.callerName, style: AppTextStyles.h1.copyWith(color: colorScheme.onSurface)),
+            Text('Incoming Voice Call', style: AppTextStyles.bodyLarge.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7))),
             const Spacer(flex: 3),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSizes.xxxl, vertical: AppSizes.xl),
@@ -119,8 +119,8 @@ class _OutgoingCallView extends StatelessWidget {
             const Spacer(flex: 2),
             ProfileAvatar(imageUrl: call.receiverPhoto, size: 120, name: call.receiverName),
             const SizedBox(height: AppSizes.xl),
-            Text(call.receiverName, style: AppTextStyles.h1.copyWith(color: Colors.white)),
-            Text('Calling...', style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70)),
+            Text(call.receiverName, style: AppTextStyles.h1.copyWith(color: colorScheme.onSurface)),
+            Text('Calling...', style: AppTextStyles.bodyLarge.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7))),
             const Spacer(flex: 3),
             _CallActionButton(
               icon: Icons.call_end_rounded,
@@ -165,14 +165,14 @@ class _ActiveCallView extends StatelessWidget {
             const Spacer(flex: 2),
             ProfileAvatar(imageUrl: call.receiverPhoto, size: 120, name: call.receiverName),
             const SizedBox(height: AppSizes.xl),
-            Text(call.receiverName, style: AppTextStyles.h2.copyWith(color: Colors.white)),
+            Text(call.receiverName, style: AppTextStyles.h2.copyWith(color: colorScheme.onSurface)),
             const SizedBox(height: AppSizes.sm),
-            Text(_formatDuration(state.duration), style: AppTextStyles.h4.copyWith(color: Colors.white70)),
+            Text(_formatDuration(state.duration), style: AppTextStyles.h4.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7))),
             const Spacer(flex: 3),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSizes.xl, vertical: AppSizes.xxl),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: colorScheme.onSurface.withValues(alpha: 0.05),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: SafeArea(
@@ -242,11 +242,11 @@ class _CallActionButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(icon, color: Colors.white, size: 32),
+            child: Icon(icon, color: colorScheme.onPrimary, size: 32),
           ),
         ),
         const SizedBox(height: 8),
-        Text(label, style: AppTextStyles.caption.copyWith(color: Colors.white)),
+        Text(label, style: AppTextStyles.caption.copyWith(color: colorScheme.onSurface)),
       ],
     );
   }
@@ -277,12 +277,12 @@ class _CallControlTile extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isActive ? Colors.white : (color ?? Colors.white.withValues(alpha: 0.1)),
+              color: isActive ? colorScheme.onSurface : (color ?? colorScheme.onSurface.withValues(alpha: 0.1)),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              color: isActive ? Colors.black : Colors.white,
+              color: isActive ? colorScheme.surface : colorScheme.onSurface,
               size: 28,
             ),
           ),
@@ -290,7 +290,7 @@ class _CallControlTile extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           label,
-          style: AppTextStyles.caption.copyWith(color: Colors.white70),
+          style: AppTextStyles.caption.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
       ],
     );
