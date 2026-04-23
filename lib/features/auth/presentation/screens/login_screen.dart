@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.school_rounded,
                         color: colorScheme.onPrimary,
                         size: 40,
